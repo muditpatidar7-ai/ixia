@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { FormEvent, ReactNode } from "react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
   COLLABORATION_TYPES,
@@ -26,6 +26,7 @@ const initialValues: InfluencerFormValues = {
   youtubeChannelLink: "",
   followerCount: "",
   engagementRate: "",
+  barterAccepted: "",
   niches: [],
   otherNiche: "",
   contentLanguages: [],
@@ -115,6 +116,13 @@ export function RegistrationForm() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const maxBirthDate = useMemo(() => getEighteenYearsAgo(), []);
+  const registrationFormRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    if (acceptedTerms) {
+      registrationFormRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [acceptedTerms]);
 
   const setValue = <K extends keyof InfluencerFormValues>(key: K, value: InfluencerFormValues[K]) => {
     setValues((current) => ({ ...current, [key]: value }));
@@ -292,7 +300,7 @@ export function RegistrationForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mx-auto max-w-6xl rounded-[34px] bg-white/80 px-5 py-10 shadow-sm ring-1 ring-forest-green/15 sm:px-8 lg:px-10">
+    <form ref={registrationFormRef} onSubmit={handleSubmit} className="mx-auto max-w-6xl rounded-[34px] bg-white/80 px-5 py-10 shadow-sm ring-1 ring-forest-green/15 sm:px-8 lg:px-10">
       {errors.form ? (
         <div className="mb-8 rounded-[18px] border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{errors.form}</div>
       ) : null}
@@ -447,7 +455,7 @@ export function RegistrationForm() {
           Average reel views
           <input
             type="text"
-            inputMode="decimal"
+            inputMode="numeric"
             value={values.engagementRate}
             onChange={(event) => setValue("engagementRate", event.target.value)}
             className={inputClass}
@@ -531,6 +539,33 @@ export function RegistrationForm() {
             ))}
           </div>
           <FieldError message={errors.hasPaidCollaborations} />
+        </fieldset>
+
+        <fieldset className="sm:col-span-2">
+          <legend className={labelClass}>Barter accepted?</legend>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            {[
+              ["yes", "Yes"],
+              ["no", "No"],
+            ].map(([value, label]) => (
+              <label
+                key={value}
+                className="flex cursor-pointer items-center gap-3 rounded-[22px] border border-forest-green/20 bg-white/80 px-4 py-3 text-sm font-semibold text-forest-green transition has-[:checked]:border-terracotta has-[:checked]:bg-terracotta/10"
+              >
+                <input
+                  required
+                  type="radio"
+                  name="barterAccepted"
+                  value={value}
+                  checked={values.barterAccepted === value}
+                  onChange={() => setValue("barterAccepted", value as "yes" | "no")}
+                  className="h-4 w-4 accent-terracotta"
+                />
+                {label}
+              </label>
+            ))}
+          </div>
+          <FieldError message={errors.barterAccepted} />
         </fieldset>
 
         <fieldset className="sm:col-span-2">

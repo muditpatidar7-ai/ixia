@@ -28,7 +28,8 @@ CREATE TABLE IF NOT EXISTS public.influencers (
   instagram_handle text,
   youtube_channel_link text,
   follower_count integer NOT NULL DEFAULT 0,
-  engagement_rate numeric(5,2),
+  engagement_rate numeric(12,0),
+  barter_accepted boolean NOT NULL DEFAULT false,
   niches text[] NOT NULL DEFAULT '{}',
   other_niche text,
   content_languages text[] NOT NULL DEFAULT '{}',
@@ -49,7 +50,7 @@ CREATE TABLE IF NOT EXISTS public.influencers (
   ),
   CONSTRAINT influencers_follower_count_check CHECK (follower_count >= 0),
   CONSTRAINT influencers_engagement_rate_check CHECK (
-    engagement_rate IS NULL OR (engagement_rate >= 0 AND engagement_rate <= 100)
+    engagement_rate IS NULL OR engagement_rate >= 0
   ),
   CONSTRAINT influencers_expected_rate_check CHECK (
     expected_rate IS NULL OR expected_rate >= 0
@@ -59,6 +60,12 @@ CREATE TABLE IF NOT EXISTS public.influencers (
 ALTER TABLE public.influencers ADD COLUMN IF NOT EXISTS locality text NOT NULL DEFAULT '';
 ALTER TABLE public.influencers ADD COLUMN IF NOT EXISTS youtube_channel_link text;
 ALTER TABLE public.influencers ADD COLUMN IF NOT EXISTS follower_count integer NOT NULL DEFAULT 0;
+ALTER TABLE public.influencers ADD COLUMN IF NOT EXISTS barter_accepted boolean NOT NULL DEFAULT false;
+ALTER TABLE public.influencers ALTER COLUMN engagement_rate TYPE numeric(12,0) USING engagement_rate::numeric(12,0);
+ALTER TABLE public.influencers DROP CONSTRAINT IF EXISTS influencers_engagement_rate_check;
+ALTER TABLE public.influencers ADD CONSTRAINT influencers_engagement_rate_check CHECK (
+  engagement_rate IS NULL OR engagement_rate >= 0
+);
 ALTER TABLE public.influencers ADD COLUMN IF NOT EXISTS other_niche text;
 ALTER TABLE public.influencers ADD COLUMN IF NOT EXISTS other_content_language text;
 

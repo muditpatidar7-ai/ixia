@@ -107,6 +107,20 @@ const getPaidCollabValue = (source: Record<string, unknown>) => {
   return null;
 };
 
+const getBarterAcceptedValue = (source: Record<string, unknown>) => {
+  const raw = source.barterAccepted;
+  if (typeof raw === "boolean") {
+    return raw;
+  }
+  if (raw === "yes") {
+    return true;
+  }
+  if (raw === "no") {
+    return false;
+  }
+  return null;
+};
+
 export function validateInfluencerPayload(payload: unknown): ValidationResult {
   if (!isRecord(payload)) {
     return { ok: false, errors: { form: "Invalid request payload." } };
@@ -125,6 +139,7 @@ export function validateInfluencerPayload(payload: unknown): ValidationResult {
   const youtubeChannelLink = getOptionalString(payload, "youtubeChannelLink");
   const followerCount = parseRequiredNumber(payload, "followerCount");
   const engagementRate = parseOptionalNumber(payload, "engagementRate");
+  const barterAccepted = getBarterAcceptedValue(payload);
   const niches = getStringArray(payload, "niches");
   const otherNiche = getOptionalString(payload, "otherNiche");
   const contentLanguages = getStringArray(payload, "contentLanguages");
@@ -176,8 +191,8 @@ export function validateInfluencerPayload(payload: unknown): ValidationResult {
     errors.followerCount = "Enter a valid follower or subscriber count.";
   }
 
-  if (engagementRate !== null && (engagementRate < 0 || engagementRate > 100)) {
-    errors.engagementRate = "Engagement rate must be between 0 and 100.";
+  if (engagementRate !== null && (engagementRate < 0 || !Number.isInteger(engagementRate))) {
+    errors.engagementRate = "Average reel views must be a whole number of 0 or more.";
   }
 
   if (!hasOnlyOptions(niches, NICHE_OPTIONS)) {
@@ -198,6 +213,10 @@ export function validateInfluencerPayload(payload: unknown): ValidationResult {
 
   if (hasPaidCollaborations === null) {
     errors.hasPaidCollaborations = "Choose yes or no.";
+  }
+
+  if (barterAccepted === null) {
+    errors.barterAccepted = "Choose yes or no.";
   }
 
   if (!hasOnlyOptions(preferredCollaborationTypes, COLLABORATION_TYPES)) {
@@ -231,6 +250,7 @@ export function validateInfluencerPayload(payload: unknown): ValidationResult {
       youtubeChannelLink,
       followerCount: followerCount ?? 0,
       engagementRate,
+      barterAccepted: barterAccepted ?? false,
       niches,
       otherNiche: niches.includes("Other") ? otherNiche : null,
       contentLanguages,
@@ -258,6 +278,7 @@ export function toInfluencerDbPayload(data: InfluencerInput) {
     youtube_channel_link: data.youtubeChannelLink,
     follower_count: data.followerCount,
     engagement_rate: data.engagementRate,
+    barter_accepted: data.barterAccepted,
     niches: data.niches,
     other_niche: data.otherNiche,
     content_languages: data.contentLanguages,

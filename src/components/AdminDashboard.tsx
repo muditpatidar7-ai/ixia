@@ -30,6 +30,7 @@ const emptyFormValues: InfluencerFormValues = {
   youtubeChannelLink: "",
   followerCount: "",
   engagementRate: "",
+  barterAccepted: "",
   niches: [],
   otherNiche: "",
   contentLanguages: [],
@@ -54,6 +55,7 @@ const recordToFormValues = (record: InfluencerRecord): InfluencerFormValues => (
   youtubeChannelLink: record.youtube_channel_link ?? "",
   followerCount: String(record.follower_count ?? ""),
   engagementRate: record.engagement_rate === null ? "" : String(record.engagement_rate),
+  barterAccepted: record.barter_accepted ? "yes" : "no",
   niches: record.niches ?? [],
   otherNiche: record.other_niche ?? "",
   contentLanguages: record.content_languages ?? [],
@@ -591,7 +593,7 @@ export function AdminDashboard() {
                         Followers
                       </button>
                     </th>
-                    <th className="px-3 py-3">Engagement</th>
+                        <th className="px-3 py-3">Average reel views</th>
                     <th className="px-3 py-3">Niches</th>
                     <th className="px-3 py-3">Other niche</th>
                     <th className="px-3 py-3">Languages</th>
@@ -713,7 +715,7 @@ export function AdminDashboard() {
                   <TextInput label="YouTube channel link" value={editValues.youtubeChannelLink} error={editErrors.youtubeChannelLink} type="url" onChange={(value) => setEditValue("youtubeChannelLink", value)} />
                   <div className="grid gap-4 sm:grid-cols-2">
                     <TextInput label="Follower/subscriber count" value={editValues.followerCount} error={editErrors.followerCount} type="number" onChange={(value) => setEditValue("followerCount", value)} />
-                    <TextInput label="Engagement rate" value={editValues.engagementRate} error={editErrors.engagementRate} inputMode="decimal" onChange={(value) => setEditValue("engagementRate", value)} />
+                    <TextInput label="Average reel views" value={editValues.engagementRate} error={editErrors.engagementRate} inputMode="numeric" onChange={(value) => setEditValue("engagementRate", value)} />
                   </div>
                   <MultiSelect label="Niches" values={editValues.niches} options={NICHE_OPTIONS} error={editErrors.niches} onChange={(values) => setEditValue("niches", values)} />
                   <TextInput label="Other niche" value={editValues.otherNiche} error={editErrors.otherNiche} onChange={(value) => setEditValue("otherNiche", value)} />
@@ -730,6 +732,18 @@ export function AdminDashboard() {
                       <option value="no">No</option>
                     </select>
                     <FieldError message={editErrors.hasPaidCollaborations} />
+                  </label>
+                  <label className="block text-sm font-semibold text-slate-900">
+                    Barter accepted?
+                    <select
+                      value={editValues.barterAccepted}
+                      onChange={(event) => setEditValue("barterAccepted", event.target.value as "yes" | "no")}
+                      className="mt-2 w-full rounded-[16px] border border-forest-green/25 bg-white/85 px-3 py-2.5 text-sm outline-none transition focus:border-terracotta focus:ring-2 focus:ring-terracotta/20"
+                    >
+                      <option value="yes">Yes</option>
+                      <option value="no">No</option>
+                    </select>
+                    <FieldError message={editErrors.barterAccepted} />
                   </label>
                   <MultiSelect label="Preferred collaboration types" values={editValues.preferredCollaborationTypes} options={COLLABORATION_TYPES} error={editErrors.preferredCollaborationTypes} onChange={(values) => setEditValue("preferredCollaborationTypes", values)} />
                   <TextInput label="Expected rate per post/video" value={editValues.expectedRate} error={editErrors.expectedRate} type="number" onChange={(value) => setEditValue("expectedRate", value)} />

@@ -24,6 +24,7 @@ export type InfluencerFormValues = {
   youtubeChannelLink: string;
   followerCount: string;
   engagementRate: string;
+  barterAccepted: "yes" | "no" | "";
   niches: string[];
   otherNiche: string;
   contentLanguages: string[];
@@ -48,6 +49,7 @@ export type InfluencerInput = {
   youtubeChannelLink: string | null;
   followerCount: number;
   engagementRate: number | null;
+  barterAccepted: boolean;
   niches: string[];
   otherNiche: string | null;
   contentLanguages: string[];
@@ -73,6 +75,7 @@ export type InfluencerRecord = {
   youtube_channel_link: string | null;
   follower_count: number;
   engagement_rate: number | null;
+  barter_accepted: boolean;
   niches: string[];
   other_niche: string | null;
   content_languages: string[];
