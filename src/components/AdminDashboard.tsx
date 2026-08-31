@@ -11,8 +11,14 @@ import {
   PRIMARY_PLATFORMS,
 } from "@/lib/constants";
 import { getSupabaseBrowserClient } from "@/lib/supabaseClient";
-import type { FieldErrors, InfluencerFormValues, InfluencerRecord } from "@/lib/types";
+import type { EngagementRateScale, FieldErrors, InfluencerFormValues, InfluencerRecord } from "@/lib/types";
 import { validateInfluencerPayload } from "@/lib/validation";
+
+const engagementRateScaleOptions: { value: EngagementRateScale; label: string }[] = [
+  { value: "normal", label: "Normal" },
+  { value: "thousand", label: "Thousand" },
+  { value: "million", label: "Million" },
+];
 
 type SortKey = "created_at" | "full_name" | "primary_platform" | "follower_count" | "city";
 type SortDirection = "asc" | "desc";
@@ -30,6 +36,7 @@ const emptyFormValues: InfluencerFormValues = {
   youtubeChannelLink: "",
   followerCount: "",
   engagementRate: "",
+  engagementRateScale: "normal",
   barterAccepted: "",
   niches: [],
   otherNiche: "",
@@ -42,36 +49,72 @@ const emptyFormValues: InfluencerFormValues = {
   additionalNotes: "",
 };
 
-const recordToFormValues = (record: InfluencerRecord): InfluencerFormValues => ({
-  fullName: record.full_name,
-  email: record.email,
-  phone: record.phone,
-  city: record.city,
-  state: record.state,
-  locality: record.locality ?? "",
-  dateOfBirth: record.date_of_birth,
-  primaryPlatform: record.primary_platform,
-  instagramHandle: record.instagram_handle ?? "",
-  youtubeChannelLink: record.youtube_channel_link ?? "",
-  followerCount: String(record.follower_count ?? ""),
-  engagementRate: record.engagement_rate === null ? "" : String(record.engagement_rate),
-  barterAccepted: record.barter_accepted ? "yes" : "no",
-  niches: record.niches ?? [],
-  otherNiche: record.other_niche ?? "",
-  contentLanguages: record.content_languages ?? [],
-  otherContentLanguage: record.other_content_language ?? "",
-  hasPaidCollaborations: record.has_paid_collabs ? "yes" : "no",
-  preferredCollaborationTypes: record.preferred_collab_types ?? [],
-  expectedRate: record.expected_rate === null ? "" : String(record.expected_rate),
-  portfolioLink: record.portfolio_link ?? "",
-  additionalNotes: record.additional_notes ?? "",
-});
+const getEngagementRateScale = (value: number | null): EngagementRateScale => {
+  if (!value || value < 1000) {
+    return "normal";
+  }
 
-const toSubmissionPayload = (values: InfluencerFormValues) => ({
-  ...values,
-  hasPaidCollaborations:
-    values.hasPaidCollaborations === "" ? "" : values.hasPaidCollaborations === "yes",
-});
+  if (value >= 1000000) {
+    return "million";
+  }
+
+  return "thousand";
+};
+
+const formatEngagementRateForScale = (value: number | null, scale: EngagementRateScale) => {
+  if (value === null || value === undefined) {
+    return "";
+  }
+
+  const divisor = scale === "thousand" ? 1000 : scale === "million" ? 1000000 : 1;
+  const formatted = value / divisor;
+  return Number.isInteger(formatted) ? String(formatted) : formatted.toFixed(2).replace(/\.00$/, "").replace(/(\.\d)0$/, "$1");
+};
+
+const recordToFormValues = (record: InfluencerRecord): InfluencerFormValues => {
+  const rawEngagementRate = record.engagement_rate;
+  const scale = getEngagementRateScale(rawEngagementRate);
+
+  return {
+    fullName: record.full_name,
+    email: record.email,
+    phone: record.phone,
+    city: record.city,
+    state: record.state,
+    locality: record.locality ?? "",
+    dateOfBirth: record.date_of_birth,
+    primaryPlatform: record.primary_platform,
+    instagramHandle: record.instagram_handle ?? "",
+    youtubeChannelLink: record.youtube_channel_link ?? "",
+    followerCount: String(record.follower_count ?? ""),
+    engagementRate: formatEngagementRateForScale(rawEngagementRate, scale),
+    engagementRateScale: scale,
+    barterAccepted: record.barter_accepted ? "yes" : "no",
+    niches: record.niches ?? [],
+    otherNiche: record.other_niche ?? "",
+    contentLanguages: record.content_languages ?? [],
+    otherContentLanguage: record.other_content_language ?? "",
+    hasPaidCollaborations: record.has_paid_collabs ? "yes" : "no",
+    preferredCollaborationTypes: record.preferred_collab_types ?? [],
+    expectedRate: record.expected_rate === null ? "" : String(record.expected_rate),
+    portfolioLink: record.portfolio_link ?? "",
+    additionalNotes: record.additional_notes ?? "",
+  };
+};
+
+const toSubmissionPayload = (values: InfluencerFormValues) => {
+  const multiplier =
+    values.engagementRateScale === "thousand" ? 1000 : values.engagementRateScale === "million" ? 1000000 : 1;
+  const rawEngagementRate = values.engagementRate.trim();
+
+  return {
+    ...values,
+    engagementRate:
+      rawEngagementRate === "" ? "" : String(Math.round(Number(rawEngagementRate) * multiplier)),
+    hasPaidCollaborations:
+      values.hasPaidCollaborations === "" ? "" : values.hasPaidCollaborations === "yes",
+  };
+};
 
 const formatList = (values?: string[] | null) => (values?.length ? values.join(", ") : "-");
 const formatOptional = (value?: string | number | null) => (value === null || value === undefined || value === "" ? "-" : value);
@@ -715,7 +758,32 @@ export function AdminDashboard() {
                   <TextInput label="YouTube channel link" value={editValues.youtubeChannelLink} error={editErrors.youtubeChannelLink} type="url" onChange={(value) => setEditValue("youtubeChannelLink", value)} />
                   <div className="grid gap-4 sm:grid-cols-2">
                     <TextInput label="Follower/subscriber count" value={editValues.followerCount} error={editErrors.followerCount} type="number" onChange={(value) => setEditValue("followerCount", value)} />
-                    <TextInput label="Average reel views" value={editValues.engagementRate} error={editErrors.engagementRate} inputMode="numeric" onChange={(value) => setEditValue("engagementRate", value)} />
+                    <div className="block text-sm font-semibold text-slate-900">
+                      <span>Average reel views</span>
+                      <div className="mt-2 flex gap-2">
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          value={editValues.engagementRate}
+                          onChange={(event) => setEditValue("engagementRate", event.target.value)}
+                          className="w-full rounded-[16px] border border-forest-green/25 bg-white/85 px-3 py-2.5 text-sm outline-none transition focus:border-terracotta focus:ring-2 focus:ring-terracotta/20"
+                        />
+                        <select
+                          value={editValues.engagementRateScale}
+                          onChange={(event) =>
+                            setEditValue("engagementRateScale", event.target.value as EngagementRateScale)
+                          }
+                          className="w-32 rounded-[16px] border border-forest-green/25 bg-white/85 px-3 py-2.5 text-sm outline-none transition focus:border-terracotta focus:ring-2 focus:ring-terracotta/20"
+                        >
+                          {engagementRateScaleOptions.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <FieldError message={editErrors.engagementRate} />
+                    </div>
                   </div>
                   <MultiSelect label="Niches" values={editValues.niches} options={NICHE_OPTIONS} error={editErrors.niches} onChange={(values) => setEditValue("niches", values)} />
                   <TextInput label="Other niche" value={editValues.otherNiche} error={editErrors.otherNiche} onChange={(value) => setEditValue("otherNiche", value)} />

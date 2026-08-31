@@ -10,8 +10,14 @@ import {
   NICHE_OPTIONS,
   PRIMARY_PLATFORMS,
 } from "@/lib/constants";
-import type { FieldErrors, InfluencerFormValues } from "@/lib/types";
+import type { EngagementRateScale, FieldErrors, InfluencerFormValues } from "@/lib/types";
 import { validateInfluencerPayload } from "@/lib/validation";
+
+const engagementRateScaleOptions: { value: EngagementRateScale; label: string }[] = [
+  { value: "normal", label: "Normal" },
+  { value: "thousand", label: "Thousand" },
+  { value: "million", label: "Million" },
+];
 
 const initialValues: InfluencerFormValues = {
   fullName: "",
@@ -26,6 +32,7 @@ const initialValues: InfluencerFormValues = {
   youtubeChannelLink: "",
   followerCount: "",
   engagementRate: "",
+  engagementRateScale: "normal",
   barterAccepted: "",
   niches: [],
   otherNiche: "",
@@ -44,11 +51,21 @@ const getEighteenYearsAgo = () => {
   return date.toISOString().split("T")[0];
 };
 
-const toSubmissionPayload = (values: InfluencerFormValues) => ({
-  ...values,
-  hasPaidCollaborations:
-    values.hasPaidCollaborations === "" ? "" : values.hasPaidCollaborations === "yes",
-});
+const toSubmissionPayload = (values: InfluencerFormValues) => {
+  const multiplier =
+    values.engagementRateScale === "thousand" ? 1000 : values.engagementRateScale === "million" ? 1000000 : 1;
+  const rawEngagementRate = values.engagementRate.trim();
+
+  return {
+    ...values,
+    engagementRate:
+      rawEngagementRate === ""
+        ? ""
+        : String(Math.round(Number(rawEngagementRate) * multiplier)),
+    hasPaidCollaborations:
+      values.hasPaidCollaborations === "" ? "" : values.hasPaidCollaborations === "yes",
+  };
+};
 
 function OptionGrid({
   options,
@@ -451,18 +468,34 @@ export function RegistrationForm() {
           <FieldError message={errors.youtubeChannelLink} />
         </label>
 
-        <label className={labelClass}>
-          Average reel views
-          <input
-            type="text"
-            inputMode="numeric"
-            value={values.engagementRate}
-            onChange={(event) => setValue("engagementRate", event.target.value)}
-            className={inputClass}
-            placeholder="45000"
-          />
+        <div className={labelClass}>
+          <span>Average reel views</span>
+          <div className="mt-2 flex gap-2">
+            <input
+              type="text"
+              inputMode="numeric"
+              value={values.engagementRate}
+              onChange={(event) => setValue("engagementRate", event.target.value)}
+              className={`${inputClass} flex-1`}
+              placeholder="45000"
+            />
+            <select
+              value={values.engagementRateScale}
+              onChange={(event) =>
+                setValue("engagementRateScale", event.target.value as EngagementRateScale)
+              }
+              className="mt-0 w-36 rounded-[18px] border border-forest-green/25 bg-white/85 px-3 py-3 text-sm text-slate-950 outline-none transition focus:border-terracotta focus:ring-2 focus:ring-terracotta/20"
+              aria-label="Average reel views unit"
+            >
+              {engagementRateScaleOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
           <FieldError message={errors.engagementRate} />
-        </label>
+        </div>
       </Section>
 
       <Section title="Content" description="Help the team match you with the right campaigns.">

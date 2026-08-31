@@ -10,6 +10,7 @@ export type Niche = (typeof NICHE_OPTIONS)[number];
 export type ContentLanguage = (typeof CONTENT_LANGUAGE_OPTIONS)[number];
 export type CollaborationType = (typeof COLLABORATION_TYPES)[number];
 export type ConfirmationEmailStatus = "pending" | "sent" | "failed" | "skipped";
+export type EngagementRateScale = "normal" | "thousand" | "million";
 
 export type InfluencerFormValues = {
   fullName: string;
@@ -24,6 +25,7 @@ export type InfluencerFormValues = {
   youtubeChannelLink: string;
   followerCount: string;
   engagementRate: string;
+  engagementRateScale: EngagementRateScale;
   barterAccepted: "yes" | "no" | "";
   niches: string[];
   otherNiche: string;
