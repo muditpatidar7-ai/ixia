@@ -191,8 +191,11 @@ export function validateInfluencerPayload(payload: unknown): ValidationResult {
     errors.followerCount = "Enter a valid follower or subscriber count.";
   }
 
-  if (engagementRate !== null && (engagementRate < 0 || !Number.isInteger(engagementRate))) {
-    errors.engagementRate = "Average reel views must be a whole number of 0 or more.";
+  if (
+    engagementRate !== null &&
+    (engagementRate < 0 || !Number.isInteger(engagementRate) || !Number.isSafeInteger(engagementRate))
+  ) {
+    errors.engagementRate = "Average reel views must be a whole number of 0 or more and fit within supported numeric limits.";
   }
 
   if (!hasOnlyOptions(niches, NICHE_OPTIONS)) {
