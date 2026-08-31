@@ -162,3 +162,5 @@ ALTER TABLE public.email_campaign_recipients ENABLE ROW LEVEL SECURITY;
 -- Admin access is checked in the application with Supabase Auth plus ADMIN_EMAILS.
 
 -- End of schema.
+--huhuhuhu
+
