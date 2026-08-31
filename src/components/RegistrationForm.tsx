@@ -14,9 +14,9 @@ import type { EngagementRateScale, FieldErrors, InfluencerFormValues } from "@/l
 import { validateInfluencerPayload } from "@/lib/validation";
 
 const engagementRateScaleOptions: { value: EngagementRateScale; label: string }[] = [
-  { value: "normal", label: "Normal" },
-  { value: "thousand", label: "Thousand" },
-  { value: "million", label: "Million" },
+  { value: "normal", label: "Exact value" },
+  { value: "thousand", label: "K" },
+  { value: "million", label: "M" },
 ];
 
 const initialValues: InfluencerFormValues = {
