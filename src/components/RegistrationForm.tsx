@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { FormEvent, ReactNode } from "react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import {
@@ -46,12 +46,6 @@ const initialValues: InfluencerFormValues = {
   expectedRate: "",
   portfolioLink: "",
   additionalNotes: "",
-};
-
-const getEighteenYearsAgo = () => {
-  const date = new Date();
-  date.setFullYear(date.getFullYear() - 18);
-  return date.toISOString().split("T")[0];
 };
 
 const toSubmissionPayload = (values: InfluencerFormValues) => {
@@ -136,7 +130,6 @@ export function RegistrationForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
-  const maxBirthDate = useMemo(() => getEighteenYearsAgo(), []);
   const registrationFormRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
@@ -356,6 +349,7 @@ export function RegistrationForm() {
           Password
           <input required type="password" minLength={8} value={values.password} onChange={(event) => setValue("password", event.target.value)} className={inputClass} placeholder="At least 8 characters" />
           <FieldError message={errors.password} />
+            <p className="mt-1 text-xs font-normal text-slate-500">At least 8 characters</p>
         </label>
 
         <label className={labelClass}>
@@ -382,7 +376,6 @@ export function RegistrationForm() {
           <input
             required
             type="date"
-            max={maxBirthDate}
             value={values.dateOfBirth}
             onChange={(event) => setValue("dateOfBirth", event.target.value)}
             className={inputClass}

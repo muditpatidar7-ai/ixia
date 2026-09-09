@@ -181,8 +181,8 @@ export function validateInfluencerPayload(payload: unknown): ValidationResult {
     errors.locality = "Locality is required.";
   }
 
-  if (!dateOfBirth || !isAtLeast18(dateOfBirth)) {
-    errors.dateOfBirth = "Influencers must be at least 18 years old.";
+    if (!dateOfBirth) {
+      errors.dateOfBirth = "Date of birth is required.";
   }
 
   if (!isInOptions(primaryPlatform, PRIMARY_PLATFORMS)) {
