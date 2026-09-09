@@ -1,6 +1,5 @@
 import { influencerConfirmationEmail } from "@/emails/influencerConfirmation";
 import { otpVerificationEmail } from "@/emails/otpVerification";
-import { passwordResetEmail } from "@/emails/passwordReset";
 
 type SendEmailArgs = {
   to: string;
@@ -63,10 +62,10 @@ export async function sendConfirmationEmail(args: { to: string; fullName: string
 
 export async function sendOtpEmail(args: { to: string; fullName: string; otp: string }): Promise<EmailResult> {
   const email = otpVerificationEmail(args);
-  return sendWithBrevo({ to: args.to, ...email });
+  try {
+    return await sendWithBrevo({ to: args.to, ...email });
+  } catch (error) {
+    return { status: "failed", provider: "brevo", error: error instanceof Error ? error.message : "Brevo error." };
+  }
 }
 
-export async function sendPasswordResetEmail(args: { to: string; resetUrl: string }): Promise<EmailResult> {
-  const email = passwordResetEmail(args);
-  return sendWithBrevo({ to: args.to, ...email });
-}

@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
   if (password !== confirmPassword) return NextResponse.json({ error: "Passwords do not match." }, { status: 400 });
   const supabase = getSupabaseAdminClient();
   const { data: user } = await supabase.from("influencers").select("id,reset_token_expiry").eq("reset_token_hash", createHash("sha256").update(token).digest("hex")).single();
-  if (!user || !user.reset_token_expiry || new Date(user.reset_token_expiry) < new Date()) return NextResponse.json({ error: "That reset link is invalid or expired." }, { status: 400 });
+  if (!user || !user.reset_token_expiry || new Date(user.reset_token_expiry) < new Date()) return NextResponse.json({ error: "That password reset session is invalid or expired. Start again with Forgot Password." }, { status: 400 });
   const { error } = await supabase.from("influencers").update({ password_hash: await hashPassword(password), email_verified: true, reset_token_hash: null, reset_token_expiry: null }).eq("id", user.id);
   if (error) return NextResponse.json({ error: "Could not reset password." }, { status: 500 });
   return NextResponse.json({ message: "Password reset successfully." });

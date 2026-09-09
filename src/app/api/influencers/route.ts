@@ -78,7 +78,9 @@ export async function POST(request: NextRequest) {
   return NextResponse.json(
     {
       id: data.id,
-      message: "Registration received. Check your email for the verification code.",
+      message: emailResult.status === "sent"
+        ? "Registration received. Check your email for the verification code."
+        : "Registration saved, but the OTP email could not be delivered. Use Resend OTP on the verification screen.",
       emailStatus: emailResult.status,
     },
     { status: 201 },
