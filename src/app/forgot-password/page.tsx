@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function ForgotPasswordPage() {
@@ -15,6 +15,7 @@ export default function ForgotPasswordPage() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  useEffect(() => { const queryEmail = new URLSearchParams(window.location.search).get("email"); if (queryEmail) setEmail(queryEmail); }, []);
 
   const submitEmail = async (event: React.FormEvent) => {
     event.preventDefault();
