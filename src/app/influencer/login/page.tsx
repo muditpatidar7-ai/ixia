@@ -1,0 +1,11 @@
+"use client";
+
+import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+
+export default function InfluencerLoginPage() {
+  const router = useRouter(); const [email, setEmail] = useState(""); const [password, setPassword] = useState(""); const [error, setError] = useState("");
+  const submit = async (event: React.FormEvent) => { event.preventDefault(); const response = await fetch("/api/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, password }) }); const result = await response.json(); if (!response.ok) { setError(result.error); if (result.requiresVerification) router.push(`/verify-email?email=${encodeURIComponent(email)}`); return; } router.replace("/influencer/dashboard"); };
+  return <main className="flex min-h-screen items-center justify-center bg-cloud-gray px-5"><form onSubmit={submit} className="w-full max-w-md rounded-3xl bg-white p-8 shadow-sm"><p className="text-sm font-semibold uppercase tracking-widest text-steel-blue">Influencer login</p><h1 className="mt-3 text-3xl font-semibold text-forest-green">Welcome back</h1>{error ? <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}<label className="mt-5 block font-semibold">Email<input required type="email" value={email} onChange={(event) => setEmail(event.target.value)} className="mt-2 w-full rounded-xl border p-3" /></label><label className="mt-4 block font-semibold">Password<input required type="password" value={password} onChange={(event) => setPassword(event.target.value)} className="mt-2 w-full rounded-xl border p-3" /></label><button className="mt-6 w-full rounded-xl bg-terracotta px-4 py-3 font-semibold text-white">Sign in</button><Link href="/forgot-password" className="mt-4 block text-center text-sm text-steel-blue">Forgot password?</Link><Link href="/register" className="mt-3 block text-center text-sm text-forest-green">Create an account</Link></form></main>;
+}

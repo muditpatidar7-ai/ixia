@@ -1,7 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { createHash, randomInt } from "node:crypto";
 
-import { sendConfirmationEmail } from "@/lib/email";
+import { sendOtpEmail } from "@/lib/email";
 import { getSupabaseAdminClient } from "@/lib/supabaseServer";
+import { hashPassword } from "@/lib/influencerAuth";
 import { toInfluencerDbPayload, validateInfluencerPayload } from "@/lib/validation";
 
 export const runtime = "nodejs";
@@ -30,10 +32,16 @@ export async function POST(request: NextRequest) {
       { status: 500 },
     );
   }
+  const otp = String(100000 + randomInt(900000));
   const { data, error } = await supabase
     .from("influencers")
     .insert({
       ...toInfluencerDbPayload(validation.data),
+      password_hash: await hashPassword(validation.data.password),
+      email_verified: false,
+      is_admin_verified: false,
+      otp_hash: createHash("sha256").update(otp).digest("hex"),
+      otp_expiry: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
       confirmation_email_status: "pending",
     })
     .select("id,email,full_name")
@@ -53,9 +61,10 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const emailResult = await sendConfirmationEmail({
+  const emailResult = await sendOtpEmail({
     to: data.email,
     fullName: data.full_name,
+    otp,
   });
 
   await supabase
@@ -69,7 +78,7 @@ export async function POST(request: NextRequest) {
   return NextResponse.json(
     {
       id: data.id,
-      message: "Registration received.",
+      message: "Registration received. Check your email for the verification code.",
       emailStatus: emailResult.status,
     },
     { status: 201 },

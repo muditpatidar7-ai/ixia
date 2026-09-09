@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { FormEvent, ReactNode } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import {
   COLLABORATION_TYPES,
@@ -22,6 +23,8 @@ const engagementRateScaleOptions: { value: EngagementRateScale; label: string }[
 const initialValues: InfluencerFormValues = {
   fullName: "",
   email: "",
+  password: "",
+  confirmPassword: "",
   phone: "",
   city: "",
   state: "",
@@ -127,6 +130,7 @@ function Section({
 }
 
 export function RegistrationForm() {
+  const router = useRouter();
   const [values, setValues] = useState<InfluencerFormValues>(initialValues);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -185,7 +189,7 @@ export function RegistrationForm() {
         return;
       }
 
-      setIsSubmitted(true);
+      router.push(`/verify-email?email=${encodeURIComponent(values.email)}`);
       setValues(initialValues);
     } catch {
       setErrors({ form: "Something went wrong while submitting. Please try again." });
@@ -346,6 +350,18 @@ export function RegistrationForm() {
             placeholder="creator@example.com"
           />
           <FieldError message={errors.email} />
+        </label>
+
+        <label className={labelClass}>
+          Password
+          <input required type="password" minLength={8} value={values.password} onChange={(event) => setValue("password", event.target.value)} className={inputClass} placeholder="At least 8 characters" />
+          <FieldError message={errors.password} />
+        </label>
+
+        <label className={labelClass}>
+          Confirm password
+          <input required type="password" minLength={8} value={values.confirmPassword} onChange={(event) => setValue("confirmPassword", event.target.value)} className={inputClass} placeholder="Repeat your password" />
+          <FieldError message={errors.confirmPassword} />
         </label>
 
         <label className={labelClass}>

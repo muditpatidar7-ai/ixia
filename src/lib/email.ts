@@ -1,4 +1,6 @@
 import { influencerConfirmationEmail } from "@/emails/influencerConfirmation";
+import { otpVerificationEmail } from "@/emails/otpVerification";
+import { passwordResetEmail } from "@/emails/passwordReset";
 
 type SendEmailArgs = {
   to: string;
@@ -13,97 +15,58 @@ type EmailResult = {
   error?: string;
 };
 
-const getProvider = () => {
-  const configuredProvider = process.env.EMAIL_PROVIDER?.toLowerCase();
-  if (configuredProvider) {
-    return configuredProvider;
-  }
-  if (process.env.RESEND_API_KEY) {
-    return "resend";
-  }
-  if (process.env.SENDGRID_API_KEY) {
-    return "sendgrid";
-  }
-  return null;
-};
+async function sendWithBrevo({ to, subject, html, text }: SendEmailArgs): Promise<EmailResult> {
+  const apiKey = process.env.BREVO_API_KEY;
+  const senderEmail = process.env.BREVO_SENDER_EMAIL ?? process.env.EMAIL_FROM;
+  const senderName = process.env.BREVO_SENDER_NAME ?? "iXIA";
 
-async function sendWithResend({ to, subject, html, text }: SendEmailArgs): Promise<EmailResult> {
-  const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.EMAIL_FROM;
-
-  if (!apiKey || !from) {
-    return { status: "skipped", provider: "resend", error: "Missing RESEND_API_KEY or EMAIL_FROM." };
+  if (!apiKey || !senderEmail) {
+    return { status: "skipped", provider: "brevo", error: "Missing BREVO_API_KEY or BREVO_SENDER_EMAIL." };
   }
 
-  const response = await fetch("https://api.resend.com/emails", {
+  const response = await fetch("https://api.brevo.com/v3/smtp/email", {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ from, to, subject, html, text }),
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    return { status: "failed", provider: "resend", error };
-  }
-
-  return { status: "sent", provider: "resend" };
-}
-
-async function sendWithSendGrid({ to, subject, html, text }: SendEmailArgs): Promise<EmailResult> {
-  const apiKey = process.env.SENDGRID_API_KEY;
-  const from = process.env.EMAIL_FROM;
-
-  if (!apiKey || !from) {
-    return { status: "skipped", provider: "sendgrid", error: "Missing SENDGRID_API_KEY or EMAIL_FROM." };
-  }
-
-  const response = await fetch("https://api.sendgrid.com/v3/mail/send", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
+      "api-key": apiKey,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      personalizations: [{ to: [{ email: to }] }],
-      from: { email: from },
+      sender: { email: senderEmail, name: senderName },
+      to: [{ email: to }],
       subject,
-      content: [
-        { type: "text/plain", value: text },
-        { type: "text/html", value: html },
-      ],
+      htmlContent: html,
+      textContent: text,
     }),
   });
 
   if (!response.ok) {
     const error = await response.text();
-    return { status: "failed", provider: "sendgrid", error };
+    return { status: "failed", provider: "brevo", error };
   }
 
-  return { status: "sent", provider: "sendgrid" };
+  return { status: "sent", provider: "brevo" };
 }
 
 export async function sendConfirmationEmail(args: { to: string; fullName: string }): Promise<EmailResult> {
   const email = influencerConfirmationEmail({ fullName: args.fullName });
-  const provider = getProvider();
 
   try {
-    if (provider === "resend") {
-      return sendWithResend({ to: args.to, ...email });
-    }
-
-    if (provider === "sendgrid") {
-      return sendWithSendGrid({ to: args.to, ...email });
-    }
-
-    return { status: "skipped", error: "No email provider configured." };
+    return sendWithBrevo({ to: args.to, ...email });
   } catch (error) {
     return {
       status: "failed",
-      provider: provider ?? undefined,
+      provider: "brevo",
       error: error instanceof Error ? error.message : "Unknown email error.",
     };
   }
+}
+
+export async function sendOtpEmail(args: { to: string; fullName: string; otp: string }): Promise<EmailResult> {
+  const email = otpVerificationEmail(args);
+  return sendWithBrevo({ to: args.to, ...email });
+}
+
+export async function sendPasswordResetEmail(args: { to: string; resetUrl: string }): Promise<EmailResult> {
+  const email = passwordResetEmail(args);
+  return sendWithBrevo({ to: args.to, ...email });
 }

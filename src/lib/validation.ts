@@ -128,6 +128,9 @@ export function validateInfluencerPayload(payload: unknown): ValidationResult {
 
   const fullName = getString(payload, "fullName");
   const email = getString(payload, "email").toLowerCase();
+  const password = getString(payload, "password");
+  const confirmPassword = getString(payload, "confirmPassword");
+  const passwordWasSubmitted = Object.prototype.hasOwnProperty.call(payload, "password");
   const phone = getString(payload, "phone");
   const normalizedPhone = phone.replace(/[\s().-]/g, "");
   const city = getString(payload, "city");
@@ -158,6 +161,9 @@ export function validateInfluencerPayload(payload: unknown): ValidationResult {
   if (!EMAIL_PATTERN.test(email)) {
     errors.email = "Enter a valid email address.";
   }
+
+  if (passwordWasSubmitted && password.length < 8) errors.password = "Password must be at least 8 characters.";
+  if (passwordWasSubmitted && password !== confirmPassword) errors.confirmPassword = "Passwords do not match.";
 
   if (!phone || !PHONE_PATTERN.test(normalizedPhone)) {
     errors.phone = "Enter a valid phone number with country code.";
@@ -243,6 +249,7 @@ export function validateInfluencerPayload(payload: unknown): ValidationResult {
     data: {
       fullName,
       email,
+      password,
       phone: normalizedPhone.startsWith("+") ? normalizedPhone : `+${normalizedPhone}`,
       city,
       state,

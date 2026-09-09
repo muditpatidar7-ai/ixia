@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iXIA — Local Influencer Marketing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --off-white:#FAF3E4;
+    --off-white-2:#F0E1BE;
+    --slate-blue:#2E3A46;
+    --hunter-green:#213B33;
+    --burnt-green:#7E654D;
+    --burnt-green-soft:#A98B6D;
+    --sage:#5F7262;
+    --ink:#1B2A2A;
+    --card:#FBF7F1;
+    --line:rgba(46,58,70,0.12);
+    --navy:#120C22;
+    --navy-2:#08050F;
+    --terracotta:#E8B93D;
+    --terracotta-dim:#C79A2E;
+    --coral:#FF4F5E;
+    --coral-dim:#E23A4C;
+    --ig-gradient:linear-gradient(135deg, var(--slate-blue) 0%, var(--hunter-green) 52%, var(--burnt-green) 100%);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    background:var(--off-white);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    overflow-x:hidden;
+    cursor:default;
+  }
+  .glow-blob{position:absolute;border-radius:50%;filter:blur(90px);pointer-events:none;z-index:0;}
+  h1,h2,h3,.display{font-family:'Space Grotesk',sans-serif;letter-spacing:-0.02em;}
+  a{color:inherit;text-decoration:none;}
+  ::selection{background:var(--terracotta);color:var(--off-white);}
+
+  nav{
+    position:fixed;top:0;left:0;right:0;z-index:200;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:16px 6vw;
+    background:rgba(18,12,34,0.55);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    border-bottom:1px solid rgba(250,243,228,0.08);
+  }
+  .logo{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:21px;color:#fff;letter-spacing:-0.01em;}
+  .nav-links{display:flex;gap:36px;font-size:14px;font-weight:500;color:var(--off-white);}
+  .nav-links a{opacity:0.72;transition:opacity .2s;}
+  .nav-links a:hover{opacity:1;}
+  .nav-cta{background:var(--terracotta);color:var(--navy);padding:10px 20px;border-radius:100px;font-size:14px;font-weight:600;transition:background .25s, box-shadow .25s;white-space:nowrap;}
+  .nav-cta:hover{background:var(--off-white);box-shadow:0 8px 22px -6px rgba(232,185,61,0.5);}
+  .nav-dashboard{border:1px solid rgba(250,243,228,0.35);color:var(--off-white);padding:9px 14px;border-radius:100px;font-size:13px;font-weight:600;white-space:nowrap;transition:background .2s,border-color .2s;}
+  .nav-dashboard:hover{background:rgba(250,243,228,0.12);border-color:rgba(250,243,228,0.7);}
+  @media(max-width:768px){.nav-links{display:none;} nav{padding:14px 5vw;} .nav-cta{padding:9px 16px;font-size:13px;}}
+
+  .stack-section{position:relative;top:auto;min-height:auto;transform:none;transform-origin:unset;will-change:auto;filter:none;}
+
+  /* HERO */
+  .hero{z-index:1;display:flex;flex-direction:column;justify-content:center;padding:0 6vw;overflow:hidden;background:var(--off-white);}
+  #hero-canvas{position:absolute;top:-10%;left:0;width:100%;height:120%;z-index:0;opacity:0.9;}
+  .hero-content{position:relative;z-index:2;max-width:760px;padding-top:100px;}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--terracotta-dim);margin-bottom:24px;opacity:0;}
+  .eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--coral);box-shadow:0 0 12px 2px rgba(255,79,94,0.6);}
+  .hero h1{font-size:clamp(42px,6.5vw,86px);font-weight:700;line-height:0.98;color:var(--navy);}
+  .hero h1 .line{display:block;overflow:hidden;padding-bottom:0.08em;}
+  .hero h1 .line-inner{display:block;transform:translateY(115%);}
+  .hero h1 .accent{background:linear-gradient(120deg,var(--terracotta-dim),var(--coral));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+  .hero p{margin-top:28px;font-size:18px;line-height:1.6;color:var(--navy);opacity:0;max-width:480px;}
+  .hero-actions{display:flex;gap:16px;margin-top:40px;flex-wrap:wrap;opacity:0;}
+  .btn-primary{background:var(--navy);color:var(--off-white);padding:16px 30px;border-radius:100px;font-weight:600;font-size:15px;display:inline-block;}
+  .btn-primary:hover{background:var(--terracotta);}
+  .btn-secondary{border:1.5px solid var(--navy);color:var(--navy);padding:16px 30px;border-radius:100px;font-weight:600;font-size:15px;display:inline-block;}
+  .btn-secondary:hover{background:var(--navy);color:var(--off-white);}
+  .scroll-cue{position:absolute;bottom:36px;left:6vw;z-index:2;font-size:12px;color:var(--navy);opacity:0.55;display:flex;align-items:center;gap:10px;font-weight:500;}
+  .scroll-cue .line{width:32px;height:1px;background:var(--navy);opacity:0.4;}
+  .hero-proof{display:flex;align-items:center;gap:16px;margin-top:48px;opacity:0;}
+  .avatar-stack{display:flex;}
+  .avatar-ring{width:46px;height:46px;border-radius:50%;padding:2.5px;background:var(--ig-gradient);margin-left:-14px;flex-shrink:0;}
+  .avatar-ring:first-child{margin-left:0;}
+  .avatar-ring img{width:100%;height:100%;border-radius:50%;object-fit:cover;border:2px solid var(--off-white);display:block;}
+  .hero-proof-text{font-size:13px;font-weight:600;color:var(--navy);line-height:1.4;}
+  .hero-proof-text span{display:block;font-weight:500;opacity:0.6;font-size:12px;margin-top:2px;}
+
+  /* USP */
+  .usp{z-index:2;padding:0 6vw;background:var(--navy);color:var(--off-white);display:flex;flex-direction:column;justify-content:center;box-shadow:0 -30px 60px rgba(0,0,0,0.25);}
+  .usp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:48px;}
+  .usp-item{border-top:1px solid rgba(246,242,233,0.25);padding-top:22px;}
+  .usp-item p.tag{font-size:13px;text-transform:uppercase;letter-spacing:0.08em;color:var(--terracotta);font-weight:600;margin-bottom:14px;}
+  .usp-item h3{font-size:21px;font-weight:600;line-height:1.4;color:var(--off-white);}
+  @media(max-width:768px){.usp-grid{grid-template-columns:1fr;gap:32px;}}
+
+  /* HORIZONTAL CASE STUDIES */
+  .case-study-section{padding:96px 6vw 82px;background:var(--off-white-2);}
+  .section-intro{max-width:760px;margin-bottom:34px;}
+  .section-intro .section-eyebrow{margin-bottom:14px;}
+  .section-intro h2{font-size:clamp(32px,4vw,52px);line-height:1.06;color:var(--slate-blue);letter-spacing:-0.04em;}
+  .industry-case{margin-top:28px;border-radius:28px;background:var(--card);border:1px solid rgba(46,58,70,0.08);padding:18px 18px 12px;box-shadow:0 12px 28px -22px rgba(33,59,51,0.24);}
+  .industry-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;padding:4px 8px 0;}
+  .industry-tag{display:inline-flex;align-items:center;justify-content:center;padding:7px 12px;border-radius:999px;background:rgba(126,101,77,0.12);color:var(--burnt-green);font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;}
+  .industry-header h3{font-size:clamp(20px,2.1vw,30px);color:var(--slate-blue);font-weight:600;letter-spacing:-0.04em;}
+  .industry-scroll{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:4px 0 8px;}
+  .industry-scroll::-webkit-scrollbar{height:8px;}
+  .industry-scroll::-webkit-scrollbar-thumb{background:rgba(46,58,70,0.18);border-radius:10px;}
+  .case-slide{display:flex;align-items:stretch;gap:18px;position:relative;flex:0 0 82%;scroll-snap-align:start;border-radius:22px;overflow:hidden;background:linear-gradient(135deg, rgba(46,58,70,0.05), rgba(33,59,51,0.02));padding:14px;border:1px solid rgba(46,58,70,0.08);box-shadow:0 18px 40px -30px rgba(33,59,51,0.3);}
+  .case-slide img{display:block;width:30%;min-width:30%;height:auto;object-fit:cover;border-radius:16px;filter:saturate(0.9) contrast(1.05);}
+  .case-slide .meta{display:flex;flex-direction:column;justify-content:center;flex:1;padding:8px 4px 8px 0;color:var(--slate-blue);font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;line-height:1.45;}
+  .case-slide .meta strong{font-size:clamp(23px,2.3vw,34px);display:block;letter-spacing:-0.03em; text-transform:none; margin:6px 0 5px; font-family:'Space Grotesk',sans-serif;line-height:1.02;color:var(--hunter-green);}
+  .case-slide .meta em{display:block;margin-top:4px;font-size:14px;letter-spacing:0;font-style:normal;text-transform:none;opacity:0.8;line-height:1.55;}
+  .case-slide.quote{background:linear-gradient(135deg, rgba(33,59,51,0.06), rgba(126,101,77,0.08));}
+  .case-slide.quote .meta strong{font-style:italic;font-size:clamp(19px,2vw,28px);}
+  @media(min-width:768px){
+    .case-slide{flex-basis:46%;}
+  }
+  @media(max-width:640px){
+    .case-study-section{padding-left:5vw;padding-right:5vw;}
+    .industry-header{flex-direction:column;align-items:flex-start;}
+    .industry-scroll{gap:12px;}
+    .case-slide{flex-basis:84%;padding:10px;gap:12px;}
+    .case-slide img{width:36%;min-width:36%;}
+    .case-slide .meta strong{font-size:20px;}
+    .case-slide .meta em{font-size:12px;}
+  }
+
+  .ixia-coverage {
+    --ixia-offwhite: var(--off-white);
+    --ixia-slate: var(--slate-blue);
+    --ixia-burnt-green: var(--burnt-green);
+    --ixia-hunter: var(--hunter-green);
+    --ixia-ink: var(--ink);
+    background: var(--ixia-offwhite);
+    color: var(--ixia-ink);
+    font-family: inherit;
+    padding: 96px 24px;
+    overflow: hidden;
+    position: relative;
+  }
+  .ixia-coverage * { box-sizing: border-box; }
+  .ixia-coverage__inner { max-width: 1080px; margin: 0 auto; }
+  .ixia-coverage__side-title { position: absolute; left: 28px; top: 24px; color: #000; font-size: 16px; font-weight: 800; letter-spacing: 0.12em; white-space: nowrap; z-index: 2; }
+  .ixia-coverage__head { text-align: center; max-width: 620px; margin: 0 auto 64px; }
+  .ixia-coverage__head h2 { font-size: clamp(28px, 4vw, 42px); line-height: 1.15; margin: 0 0 14px; color: var(--ixia-hunter); font-weight: 600; }
+  .ixia-coverage__head p { font-size: 17px; line-height: 1.5; margin: 0; color: var(--ixia-slate); }
+  .ixia-coverage__photo-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin-bottom: 64px; }
+  .ixia-coverage__photo { position: relative; overflow: hidden; aspect-ratio: 4 / 5; border-radius: 6px; background: var(--ixia-slate); }
+  .ixia-coverage__photo img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.5s ease; }
+  .ixia-coverage__photo:hover img { transform: scale(1.04); }
+  .ixia-coverage__photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(36,48,43,0.42), transparent 52%); pointer-events: none; }
+  .ixia-coverage__benefits { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; border-top: 1px solid rgba(47,74,60,0.15); border-bottom: 1px solid rgba(47,74,60,0.15); padding: 36px 0; margin-bottom: 56px; }
+  .ixia-benefit { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; }
+  .ixia-benefit svg { width: 28px; height: 28px; stroke: var(--ixia-hunter); }
+  .ixia-benefit span { font-size: 14px; line-height: 1.4; color: var(--ixia-ink); }
+  .ixia-coverage__cta { text-align: center; }
+  .ixia-coverage__cta h3 { font-size: clamp(20px, 3vw, 26px); margin: 0 0 20px; color: var(--ixia-hunter); font-weight: 600; }
+  .ixia-coverage__cta a { display: inline-block; background: var(--ixia-hunter); color: var(--ixia-offwhite); text-decoration: none; font-size: 15px; font-weight: 500; padding: 14px 32px; border-radius: 4px; transition: background 0.2s ease; }
+  .ixia-coverage__cta a:hover { background: var(--burnt-green); }
+  @media (max-width: 780px) { .ixia-coverage { padding: 72px 20px 64px; } .ixia-coverage__side-title { left: 20px; top: 20px; font-size: 13px; } .ixia-coverage__photo-grid { grid-template-columns: 1fr; gap: 16px; } .ixia-coverage__photo { aspect-ratio: 16 / 10; } .ixia-coverage__benefits { grid-template-columns: 1fr 1fr; row-gap: 28px; } }
+  @media (prefers-reduced-motion: reduce) { .ixia-coverage__photo img, .ixia-coverage__cta a { transition: none; } }
+
+  /* HOW */
+  .how{z-index:4;padding:80px 6vw;display:flex;flex-direction:column;justify-content:center;background:var(--off-white);box-shadow:0 -30px 60px rgba(0,0,0,0.15);}
+  .section-head{max-width:600px;margin-bottom:56px;}
+  .section-eyebrow{font-size:13px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--terracotta);margin-bottom:16px;display:inline-flex;align-items:center;gap:8px;}
+  .section-eyebrow::before{content:'';width:7px;height:7px;border-radius:2px;background:var(--ig-gradient);}
+  .section-head h2{font-size:clamp(30px,4vw,48px);color:var(--navy);line-height:1.1;font-weight:700;}
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--off-white-2);border-radius:24px;overflow:hidden;}
+  .panel{background:var(--off-white);padding:48px;}
+  .panel.dark{background:var(--ig-gradient);color:var(--off-white);}
+  .panel h4{font-family:'Space Grotesk',sans-serif;font-size:24px;margin-bottom:24px;}
+  .panel h4 span{color:var(--terracotta);}
+  .panel.dark h4 span{color:var(--off-white);}
+  .steps{position:relative;padding-left:2px;}
+  .steps .line-bg{position:absolute;left:3px;top:8px;bottom:8px;width:2px;background:rgba(18,12,34,0.12);}
+  .panel.dark .steps .line-bg{background:rgba(250,243,228,0.28);}
+  .steps .line-fill{position:absolute;left:3px;top:8px;bottom:8px;width:2px;background:var(--ig-gradient);transform-origin:top;transform:scaleY(0);}
+  .panel.dark .steps .line-fill{background:var(--off-white);}
+  .panel .step{position:relative;display:flex;gap:16px;margin-bottom:20px;font-size:15px;line-height:1.6;}
+  .panel .step .dot{width:8px;height:8px;border-radius:50%;margin-top:8px;flex-shrink:0;background:var(--terracotta);}
+  .panel.dark .step .dot{background:var(--off-white);}
+  @media(max-width:768px){.split{grid-template-columns:1fr;}}
+
+  /* NETWORK */
+  .network-section{z-index:5;padding:80px 6vw;background:var(--off-white-2);display:flex;flex-direction:column;justify-content:center;box-shadow:0 -30px 60px rgba(0,0,0,0.15);}
+  .network-wrap{position:relative;height:520px;border-radius:24px;overflow:hidden;background:var(--navy-2);margin-top:56px;}
+  #network-canvas{position:absolute;top:0;left:0;width:100%;height:100%;}
+  .network-label{position:absolute;bottom:32px;left:32px;color:var(--off-white);z-index:2;max-width:340px;}
+  .network-label p{font-size:14px;opacity:0.7;line-height:1.5;}
+  .legend{position:absolute;top:32px;right:32px;z-index:2;display:flex;gap:20px;}
+  .legend-item{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--off-white);opacity:0.8;}
+  .legend-dot{width:9px;height:9px;border-radius:50%;}
+  .legend-square{width:9px;height:9px;}
+
+  .end-flow{position:relative;z-index:6;background:var(--off-white);}
+  .stats{padding:100px 6vw;display:grid;grid-template-columns:repeat(4,1fr);gap:32px;text-align:left;}
+  .stat h3{font-family:'Space Grotesk',sans-serif;font-size:clamp(34px,4vw,52px);font-weight:700;background:linear-gradient(120deg,var(--terracotta),var(--coral));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+  .stat p{font-size:14px;color:var(--navy);opacity:0.7;margin-top:8px;}
+  @media(max-width:768px){.stats{grid-template-columns:repeat(2,1fr);}}
+
+  .cta{position:relative;margin:0 6vw 6vw;padding:100px 6vw;background:radial-gradient(120% 140% at 15% 0%, #241a3d 0%, var(--navy) 55%);border-radius:32px;text-align:center;color:var(--off-white);overflow:hidden;box-shadow:0 0 0 1.5px rgba(232,185,61,0.3), 0 60px 100px -30px rgba(18,12,34,0.6);}
+  .cta::before{content:'';position:absolute;top:-30%;right:-10%;width:60%;height:160%;background:radial-gradient(circle,rgba(255,79,94,0.35) 0%,rgba(255,79,94,0) 65%);pointer-events:none;}
+  .cta::after{content:'';position:absolute;bottom:-40%;left:-10%;width:55%;height:150%;background:radial-gradient(circle,rgba(232,185,61,0.28) 0%,rgba(232,185,61,0) 65%);pointer-events:none;}
+  .cta h2, .cta p, .cta .btn-primary{position:relative;z-index:1;}
+  .cta h2{font-size:clamp(32px,5vw,56px);font-weight:700;margin-bottom:24px;}
+  .cta p{opacity:0.7;max-width:480px;margin:0 auto 36px;font-size:16px;}
+  .cta .btn-primary{background:var(--ig-gradient);background-size:220% 220%;animation:igshift 6s ease infinite;color:var(--off-white);font-weight:700;box-shadow:0 12px 34px -8px rgba(214,41,118,0.55);}
+  .cta .btn-primary:hover{background:var(--off-white);animation:none;color:var(--navy);box-shadow:0 12px 30px -8px rgba(250,243,228,0.4);}
+  @keyframes igshift{0%{background-position:0% 50%;}50%{background-position:100% 50%;}100%{background-position:0% 50%;}}
+
+  footer{padding:48px 6vw;display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--navy);opacity:0.6;flex-wrap:wrap;gap:16px;}
+
+  .register-section{padding:0 6vw 6vw; background:var(--off-white);}
+  .register-card{background:linear-gradient(180deg, rgba(255,255,255,0.95), rgba(250,243,228,0.94)); border:1px solid rgba(18,12,34,0.08); border-radius:30px; box-shadow:0 28px 80px -40px rgba(18,12,34,0.32); padding:42px 32px;}
+  .register-header{text-align:center; margin-bottom:32px;}
+  .register-header .section-eyebrow{margin-bottom:12px;}
+  .register-header h3{font-size:clamp(28px,4vw,44px); color:var(--navy); margin-bottom:12px;}
+  .register-header p{max-width:620px; margin:0 auto; color:rgba(18,12,34,0.72); font-size:15px; line-height:1.7;}
+  .register-form{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px 22px;}
+  .form-field{display:flex; flex-direction:column; gap:8px;}
+  .form-field.full{grid-column:1 / -1;}
+  .form-field label{font-size:13px; font-weight:700; letter-spacing:0.03em; color:var(--navy);}
+  .form-field input, .form-field select, .form-field textarea{width:100%; border:1px solid rgba(18,12,34,0.12); border-radius:16px; background:rgba(255,255,255,0.8); padding:14px 16px; font:inherit; color:var(--navy); font-size:14px; resize:vertical; min-height:52px;}
+  .form-field input:focus, .form-field select:focus, .form-field textarea:focus{outline:none; border-color:rgba(232,185,61,0.8); box-shadow:0 0 0 3px rgba(232,185,61,0.12);}
+  .field-row{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px;}
+  .checkbox-grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px 16px; margin-top:6px;}
+  .checkbox-item{display:flex; align-items:center; gap:8px; padding:10px 12px; border:1px solid rgba(18,12,34,0.12); border-radius:12px; background:rgba(255,255,255,0.8); font-size:13px; color:var(--navy);}
+  .checkbox-item input{width:auto; min-height:auto; margin:0; accent-color:var(--terracotta-dim);}
+  .form-submit{grid-column:1 / -1; display:flex; align-items:center; justify-content:space-between; gap:18px; margin-top:10px; flex-wrap:wrap;}
+  .register-status{min-height:24px; font-size:14px; font-weight:600; }
+  .register-status.success{color:#0e8a5d;}
+  .register-status.error{color:#b3261e;}
+  .form-submit button{appearance:none; border:none; border-radius:999px; background:linear-gradient(135deg, var(--terracotta), var(--coral)); color:var(--navy); font-weight:700; padding:16px 28px; cursor:pointer; transition:transform .2s ease, box-shadow .2s ease; box-shadow:0 16px 30px -18px rgba(255,79,94,0.72);}
+  .form-submit button:hover{transform:translateY(-1px);}
+  .form-submit button:disabled{opacity:0.7; cursor:wait;}
+
+  @media (max-width:768px){ .register-form{grid-template-columns:1fr;} .field-row,.checkbox-grid {grid-template-columns:1fr;} .register-card{padding:28px 18px;} .form-submit{align-items:flex-start; flex-direction:column;} }
+
+  [data-reveal]{opacity:0;}
+
+  @media (prefers-reduced-motion: reduce){.stack-section{position:relative !important;}}
+
+  @media(max-width:900px){
+    .stack-section{position:relative !important;min-height:auto !important;}
+    .hero{min-height:100vh !important;min-height:100svh !important;padding-top:8px;}
+    .usp,.story,.how,.network-section{padding-top:64px;padding-bottom:64px;}
+    .hero-content{padding-top:88px;max-width:100%;}
+    .hero p{font-size:16px;max-width:100%;}
+    .hero-actions{gap:12px;}
+    .btn-primary,.btn-secondary{padding:14px 24px;font-size:14px;}
+    .scroll-cue{display:none;}
+    .hero-proof{margin-top:32px;flex-wrap:wrap;}
+    .avatar-ring{width:38px;height:38px;}
+    .glow-blob{filter:blur(60px);}
+    .split-heading{margin-bottom:36px;}
+    .network-wrap{height:380px;}
+    .legend{top:auto;bottom:16px;right:16px;gap:12px;}
+    .stats{padding:64px 6vw;}
+    .cta{padding:64px 6vw;margin:0 4vw 4vw;}
+    .cta h2{margin-bottom:16px;}
+    .cta p{margin-bottom:28px;}
+    .how,.network-section{padding-left:5vw;padding-right:5vw;}
+    .panel{padding:32px;}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">iXIA</div>
+  <div class="nav-links">
+    <a href="#how">How it works</a>
+    <a href="#network">Network</a>
+    <a href="#stats">Results</a>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-end;">
+    <a href="/influencer/dashboard" class="nav-dashboard">Influencer Dashboard</a>
+    <a href="/platform" class="nav-cta magnetic">Register</a>
+  </div>
+</nav>
+
+<section class="hero stack-section">
+  <canvas id="hero-canvas"></canvas>
+  <div class="glow-blob" style="width:520px;height:520px;top:-10%;right:-6%;background:radial-gradient(circle,rgba(255,79,94,0.28) 0%,rgba(255,79,94,0) 70%);"></div>
+  <div class="glow-blob" style="width:460px;height:460px;bottom:-15%;left:-8%;background:radial-gradient(circle,rgba(232,185,61,0.28) 0%,rgba(232,185,61,0) 70%);"></div>
+  <div class="hero-content">
+    <div class="eyebrow" id="hero-eyebrow">Built for local brands</div>
+    <h1>
+      <span class="line"><span class="line-inner">Local brands.</span></span>
+      <span class="line"><span class="line-inner">Local influencers.</span></span>
+      <span class="line"><span class="line-inner accent">One easy match.</span></span>
+    </h1>
+    <p id="hero-p">iXIA connects your brand with influencers people already follow and trust — right in your own city.</p>
+    <div class="hero-actions" id="hero-actions">
+      <a href="/platform" class="btn-primary magnetic">Register as Influencer</a>
+    </div>
+    <div class="hero-proof" id="hero-proof">
+      <div class="avatar-stack">
+        <div class="avatar-ring"><img src="https://images.unsplash.com/photo-1756982784258-0fa7595fa3a8?auto=format&fit=crop&w=160&h=160&q=80" alt="Local creator"></div>
+        <div class="avatar-ring"><img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=160&h=160&q=80" alt="Local creator"></div>
+        <div class="avatar-ring"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=160&h=160&q=80" alt="Local creator"></div>
+        <div class="avatar-ring"><img src="https://images.unsplash.com/photo-1653198020531-4a15524333e9?auto=format&fit=crop&w=160&h=160&q=80" alt="Local creator"></div>
+      </div>
+      <div class="hero-proof-text">Now onboarding creators in Indore<span>for local brand partnerships</span></div>
+    </div>
+  </div>
+  <div class="scroll-cue"><span class="line"></span>Scroll</div>
+</section>
+
+<section class="usp stack-section">
+  <div class="usp-grid">
+    <div class="usp-item" data-reveal>
+      <p class="tag">Only your city</p>
+      <h3>We match you with influencers who actually live where your customers do.</h3>
+    </div>
+    <div class="usp-item" data-reveal>
+      <p class="tag">Real people only</p>
+      <h3>Every influencer is checked by hand — no bots, no fake followers, no surprises.</h3>
+    </div>
+    <div class="usp-item" data-reveal>
+      <p class="tag">No agency fees</p>
+      <h3>Start a campaign in days, without hiring a marketing team.</h3>
+    </div>
+  </div>
+</section>
+
+<section class="case-study-section" aria-label="Local case studies">
+  <div class="section-intro" data-reveal>
+    <p class="section-eyebrow">See it in action</p>
+    <h2>Local wins, city by city.</h2>
+  </div>
+
+  <div class="industry-case" data-reveal>
+    <div class="industry-header">
+      <span class="industry-tag">Cafe</span>
+      <h3>Peepal &amp; Bean x Aditi Shah</h3>
+    </div>
+    <div class="industry-scroll">
+      <article class="case-slide">
+        <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=900&h=1200&q=80" alt="Peepal & Bean cafe in Indore">
+        <div class="meta">Cafe<br><strong>Peepal &amp; Bean</strong><em>Regulars trusted a local creator’s café rec before stepping in.</em></div>
+      </article>
+      <article class="case-slide">
+        <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&h=1200&q=80" alt="Local food creator Aditi Shah filming at a cafe">
+        <div class="meta">Creator<br><strong>Aditi Shah</strong><em>Her audience already knew the area, so every recommendation felt personal.</em></div>
+      </article>
+      <article class="case-slide">
+        <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=900&h=1200&q=80" alt="Cafe content shoot in Indore">
+        <div class="meta">Shoot<br><strong>Morning reel</strong><em>One quick story captured the coffee, ambience, and local vibe.</em></div>
+      </article>
+      <article class="case-slide">
+        <img src="https://images.unsplash.com/photo-1521017432531-fbd92d768814?auto=format&fit=crop&w=900&h=1200&q=80" alt="Indore cafe footfall and walk-ins after creator content">
+        <div class="meta">Result<br><strong>Walk-ins +64%</strong><em>Local influencer promotion turned attention into footfall and repeat visits.</em></div>
+      </article>
+      <article class="case-slide quote">
+        <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&h=1200&q=80" alt="Cafe customer testimonial">
+        <div class="meta">Quote<br><strong>“People came for the reel, stayed for the coffee.”</strong></div>
+      </article>
+    </div>
+  </div>
+
+  <div class="industry-case" data-reveal>
+    <div class="industry-header">
+      <span class="industry-tag">Clothing</span>
+      <h3>Aavya Atelier x Rhea Mehta</h3>
+    </div>
+    <div class="industry-scroll">
+      <article class="case-slide">
+        <img src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=900&h=1200&q=80" alt="Aavya Atelier store in India">
+        <div class="meta">Store<br><strong>Aavya Atelier</strong><em>Local styling content made the collection feel closer and more relevant.</em></div>
+      </article>
+      <article class="case-slide">
+        <img src="https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=900&h=1200&q=80" alt="Local style creator Rhea Mehta filming a clothing brand">
+        <div class="meta">Creator<br><strong>Rhea Mehta</strong><em>Her audience saw the outfit in context, not just in a static ad.</em></div>
+      </article>
+      <article class="case-slide">
+        <img src="https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=900&h=1200&q=80" alt="Fashion shoot for clothing store in India">
+        <div class="meta">Shoot<br><strong>Try-on stories</strong><em>Short styling reels made the store feel more discoverable and personal.</em></div>
+      </article>
+      <article class="case-slide">
+        <img src="https://images.pexels.com/photos/9822733/pexels-photo-9822733.jpeg" alt="Results from clothing store creator campaign">
+        <div class="meta">Result<br><strong>Orders doubled</strong><em>Promoting with a local creator turned style interest into quick conversions.</em></div>
+      </article>
+      <article class="case-slide quote">
+        <img src="https://images.pexels.com/photos/17637243/pexels-photo-17637243.jpeg" alt="Customer quote for clothing store">
+        <div class="meta">Quote<br><strong>“The drop sold out before the weekend.”</strong></div>
+      </article>
+    </div>
+  </div>
+
+  <div class="industry-case" data-reveal>
+    <div class="industry-header">
+      <span class="industry-tag">Restaurant</span>
+      <h3>Saffron Table x Karan Bhatia</h3>
+    </div>
+    <div class="industry-scroll">
+      <article class="case-slide">
+        <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=900&h=1200&q=80" alt="Saffron Table restaurant in India">
+        <div class="meta">Restaurant<br><strong>Saffron Table</strong><em>A trusted local food voice made the launch feel like an event, not an ad.</em></div>
+      </article>
+      <article class="case-slide">
+        <img src="https://images.unsplash.com/photo-1504593811423-6dd665756598?auto=format&fit=crop&w=900&h=1200&q=80" alt="Local foodie Karan Bhatia filming restaurant content">
+        <div class="meta">Creator<br><strong>Karan Bhatia</strong><em>His followers saw the experience firsthand and booked before the service even opened.</em></div>
+      </article>
+      <article class="case-slide">
+        <img src="https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=900&h=1200&q=80" alt="Food content shoot at restaurant">
+        <div class="meta">Shoot<br><strong>Chef’s table reel</strong><em>One creator-led reel made the menu feel aspirational and local.</em></div>
+      </article>
+      <article class="case-slide">
+        <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=900&h=1200&q=80" alt="Restaurant bookings after local creator campaign">
+        <div class="meta">Result<br><strong>Bookings filled</strong><em>Promoting with a local foodie helped turn curiosity into reservations.</em></div>
+      </article>
+      <article class="case-slide quote">
+        <img src="https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=900&h=1200&q=80" alt="Restaurant quote card">
+        <div class="meta">Quote<br><strong>“The table waitlist started the same night.”</strong></div>
+      </article>
+    </div>
+  </div>
+
+  <div class="industry-case" data-reveal>
+    <div class="industry-header">
+      <span class="industry-tag">Gym</span>
+      <h3>Iron Pulse x Nisha Verma</h3>
+    </div>
+    <div class="industry-scroll">
+      <article class="case-slide">
+        <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=900&h=1200&q=80" alt="Iron Pulse gym in India">
+        <div class="meta">Gym<br><strong>Iron Pulse</strong><em>Members saw a local fitness creator speaking about the space in real time.</em></div>
+      </article>
+      <article class="case-slide">
+        <img src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=900&h=1200&q=80" alt="Local fitness creator Nisha Verma filming gym content">
+        <div class="meta">Creator<br><strong>Nisha Verma</strong><em>Her audience trusted her routine, so the gym felt active and relevant.</em></div>
+      </article>
+      <article class="case-slide">
+        <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=900&h=1200&q=80" alt="Gym workout content shoot in India">
+        <div class="meta">Shoot<br><strong>Strength reel</strong><em>One creator-led story showed the routine people wanted to join.</em></div>
+      </article>
+      <article class="case-slide">
+        <img src="https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?auto=format&fit=crop&w=900&h=1200&q=80" alt="Gym membership results after local creator campaign">
+        <div class="meta">Result<br><strong>340 new leads</strong><em>Promoting with a local fitness face helped convert attention into sign-ups.</em></div>
+      </article>
+      <article class="case-slide quote">
+        <img src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=900&h=1200&q=80" alt="Gym testimonial quote">
+        <div class="meta">Quote<br><strong>“The first week filled the 6 a.m. slots.”</strong></div>
+      </article>
+    </div>
+  </div>
+
+</section>
+
+<section class="ixia-coverage" id="ixia-indore-coverage">
+  <div class="ixia-coverage__inner">
+    <span class="ixia-coverage__side-title">BUILD FOR BRANDS</span>
+    <div class="ixia-coverage__head">
+      <h2>We have creators in every area of Indore, and we are expanding to more cities across India.</h2>
+      <p>From Vijay Nagar to Rajwada — your brand, seen everywhere.</p>
+    </div>
+
+    <div class="ixia-coverage__photo-grid">
+      <figure class="ixia-coverage__photo">
+        <img src="assets/brand-photo-1.jpg" alt="Brand campaign photo" loading="lazy">
+      </figure>
+      <figure class="ixia-coverage__photo">
+        <img src="assets/brand-photo-2.jpg" alt="Local creator campaign photo" loading="lazy">
+      </figure>
+    </div>
+
+    <div class="ixia-coverage__benefits">
+      <div class="ixia-benefit">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 4 6 4 9s-1.5 6.3-4 9c-2.5-2.7-4-6-4-9s1.5-6.3 4-9z"/></svg>
+        <span>Full city coverage, not just central areas</span>
+      </div>
+      <div class="ixia-benefit">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>Local creators who already know their neighbourhood</span>
+      </div>
+      <div class="ixia-benefit">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 11-14h-7z"/></svg>
+        <span>Faster, more authentic reach than paid city-wide ads</span>
+      </div>
+      <div class="ixia-benefit">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        <span>One platform to manage creators across all of Indore</span>
+      </div>
+    </div>
+
+    <div class="ixia-coverage__cta">
+      <h3>Ready to be seen across Indore?</h3>
+      <a href="/platform">Partner with iXIA</a>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var section = document.getElementById('ixia-indore-coverage');
+      if (!section || !('IntersectionObserver' in window)) {
+        if (section) section.classList.add('is-visible');
+        return;
+      }
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            section.classList.add('is-visible');
+            observer.unobserve(section);
+          }
+        });
+      }, { threshold: 0.3 });
+      observer.observe(section);
+    })();
+  </script>
+</section>
+
+<section class="how stack-section" id="how">
+  <div class="section-head" data-reveal>
+    <p class="section-eyebrow">How it works</p>
+    <h2>Two sides of the same street.</h2>
+  </div>
+  <div class="split">
+    <div class="panel">
+      <h4>For brands</h4>
+      <div class="steps">
+        <div class="line-bg"></div><div class="line-fill"></div>
+        <div class="step"><span class="dot"></span><span>Tell us your city and budget.</span></div>
+        <div class="step"><span class="dot"></span><span>We shortlist local creators who fit.</span></div>
+        <div class="step"><span class="dot"></span><span>Launch the campaign and pay for results.</span></div>
+      </div>
+    </div>
+    <div class="panel dark">
+      <h4>For influencers</h4>
+      <div class="steps">
+        <div class="line-bg"></div><div class="line-fill"></div>
+        <div class="step"><span class="dot"></span><span>Get found by brands near you.</span></div>
+        <div class="step"><span class="dot"></span><span>Set your own rate — always.</span></div>
+        <div class="step"><span class="dot"></span><span>Build real local partnerships.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="network-section stack-section" id="network">
+  <div class="section-head" data-reveal>
+    <p class="section-eyebrow">The network</p>
+    <h2>What a local match actually looks like.</h2>
+  </div>
+  <div class="network-wrap" data-reveal>
+    <canvas id="network-canvas"></canvas>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-dot" style="background:#FF4F5E"></span>Influencers</div>
+      <div class="legend-item"><span class="legend-square" style="background:#E8B93D"></span>Brands</div>
+    </div>
+    <div class="network-label"><p>Every line is a real match — a brand and an influencer in the same neighbourhood.</p></div>
+  </div>
+</section>
+
+<div class="end-flow">
+  <section class="stats" id="stats">
+    <div class="stat" data-reveal><h3>Indore</h3><p>launch city</p></div>
+    <div class="stat" data-reveal><h3>Now</h3><p>onboarding creators</p></div>
+    <div class="stat" data-reveal><h3>Local</h3><p>brand-first matching</p></div>
+    <div class="stat" data-reveal><h3>Verified</h3><p>influencers only</p></div>
+  </section>
+
+  <section class="cta" id="cta" data-reveal>
+    <h2>Ready to grow locally?</h2>
+    <p>Tell us your city — we'll find your match.</p>
+    <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
+      <a href="/platform" class="btn-primary magnetic">Register as Influencer</a>
+    </div>
+  </section>
+
+  <footer>
+    <div>© 2026 iXIA — Local Influencer Marketing</div>
+    <div>Made for brands and creators who stay local</div>
+  </footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+gsap.registerPlugin(ScrollTrigger);
+const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const IS_MOBILE = window.matchMedia('(max-width:900px)').matches;
+
+/* HERO load-in */
+if(!REDUCED){
+  const tl = gsap.timeline({delay:0.2});
+  tl.to('.hero h1 .line-inner', {y:'0%', duration:1.1, ease:'power4.out', stagger:0.12})
+    .to('#hero-eyebrow', {opacity:1, duration:0.6, ease:'power2.out'}, 0.1)
+    .to('#hero-p', {opacity:0.85, duration:0.7, ease:'power2.out'}, '-=0.7')
+    .to('#hero-actions', {opacity:1, duration:0.7, ease:'power2.out'}, '-=0.6')
+    .to('#hero-proof', {opacity:1, duration:0.7, ease:'power2.out'}, '-=0.4');
+} else {
+  gsap.set('.hero h1 .line-inner', {y:'0%'});
+  gsap.set(['#hero-eyebrow','#hero-p','#hero-actions','#hero-proof'], {opacity:1});
+}
+
+/* Scroll visuals remain clean and non-overlapping */
+if(!REDUCED && !IS_MOBILE){
+  gsap.to('#hero-canvas', {yPercent:15, ease:'none', scrollTrigger:{trigger:'.hero', start:'top top', end:'bottom top', scrub:true}});
+}
+
+/* Generic scale/blur reveal */
+if(!REDUCED){
+  gsap.utils.toArray('[data-reveal]').forEach((el)=>{
+    gsap.fromTo(el, {opacity:0, scale:0.88, y:30, filter:'blur(8px)'}, {
+      opacity:1, scale:1, y:0, filter:'blur(0px)', duration:0.9, ease:'back.out(1.4)',
+      scrollTrigger:{trigger:el, start:'top 85%', toggleActions:'play none none reverse'}
+    });
+  });
+  gsap.utils.toArray('.usp-item').forEach((el,i)=>{
+    gsap.fromTo(el, {opacity:0, y:40, scale:0.9}, {
+      opacity:1, y:0, scale:1, duration:0.8, delay:i*0.1, ease:'back.out(1.5)',
+      scrollTrigger:{trigger:el, start:'top 88%', toggleActions:'play none none reverse'}
+    });
+  });
+} else { gsap.set('[data-reveal]', {opacity:1}); }
+
+/* Split-by-character heading */
+document.querySelectorAll('.split-heading').forEach(h=>{
+  const text = h.textContent;
+  h.textContent = '';
+  text.split('').forEach(ch=>{
+    const span = document.createElement('span');
+    span.textContent = ch === ' ' ? '\u00A0' : ch;
+    span.style.display = 'inline-block';
+    if(!REDUCED){ span.style.opacity = 0; span.style.transform = 'translateY(40px) rotate(6deg)'; }
+    h.appendChild(span);
+  });
+  if(!REDUCED){
+    gsap.to(h.children, {
+      opacity:1, y:0, rotate:0, duration:0.6, stagger:0.018, ease:'back.out(1.6)',
+      scrollTrigger:{trigger:h, start:'top 82%', toggleActions:'play none none reverse'}
+    });
+  }
+});
+
+/* Stat counters */
+document.querySelectorAll('.stat h3[data-count]').forEach(h3=>{
+  const target = parseFloat(h3.dataset.count);
+  const suffix = h3.dataset.suffix || '';
+  const decimals = h3.dataset.decimal ? parseInt(h3.dataset.decimal) : 0;
+  const obj = { val: 0 };
+  ScrollTrigger.create({
+    trigger:h3, start:'top 90%', once:true,
+    onEnter:()=>{
+      gsap.to(obj, { val: target, duration:1.6, ease:'power2.out',
+        onUpdate:()=>{ h3.textContent = obj.val.toFixed(decimals) + suffix; } });
+    }
+  });
+});
+
+/* Story image swap on scroll */
+document.querySelectorAll('.story-block').forEach(block=>{
+  const idx = block.dataset.img;
+  const inner = block.querySelector('.inner');
+  if(!REDUCED){
+    gsap.set(inner, {opacity:0, y:28});
+  } else {
+    gsap.set(inner, {opacity:1, y:0});
+  }
+  ScrollTrigger.create({
+    trigger:block, start:'top 60%', end:'bottom 40%',
+    onEnter:()=>{ setActiveImg(idx); animateIn(inner); },
+    onEnterBack:()=>{ setActiveImg(idx); animateIn(inner); },
+    onLeave:()=>animateOut(inner),
+    onLeaveBack:()=>animateOut(inner)
+  });
+});
+function animateIn(el){
+  if(REDUCED) return;
+  gsap.to(el, {opacity:1, y:0, duration:0.7, ease:'power3.out'});
+}
+function animateOut(el){
+  if(REDUCED) return;
+  gsap.to(el, {opacity:0, y:-20, duration:0.4, ease:'power2.in'});
+}
+function setActiveImg(idx){
+  document.querySelectorAll('.story-img').forEach(img=>{
+    img.classList.toggle('active', img.dataset.idx === idx);
+  });
+  document.querySelectorAll('.story-caption').forEach(cap=>{
+    cap.classList.toggle('active', cap.dataset.cap === idx);
+  });
+}
+const firstStoryInner = document.querySelector('.story-block[data-img="0"] .inner');
+if(firstStoryInner) gsap.set(firstStoryInner, {opacity:1, y:0});
+
+/* How it works — scroll effects (no pinning, so mobile-safe) */
+(function(){
+  const panels = document.querySelectorAll('.split .panel');
+  panels.forEach((panel, i)=>{
+    const fromX = i === 0 ? -46 : 46;
+    const steps = panel.querySelectorAll('.step');
+    const fill = panel.querySelector('.line-fill');
+    if(!REDUCED){
+      gsap.fromTo(panel, {opacity:0, x:fromX}, {
+        opacity:1, x:0, duration:0.9, ease:'power3.out',
+        scrollTrigger:{trigger:panel, start:'top 85%', toggleActions:'play none none reverse'}
+      });
+      gsap.fromTo(steps, {opacity:0, x:i===0?-18:18}, {
+        opacity:1, x:0, duration:0.5, stagger:0.14, ease:'power2.out',
+        scrollTrigger:{trigger:panel, start:'top 78%', toggleActions:'play none none reverse'}
+      });
+      if(fill){
+        gsap.fromTo(fill, {scaleY:0}, {
+          scaleY:1, ease:'none',
+          scrollTrigger:{trigger:panel, start:'top 78%', end:'bottom 68%', scrub:0.6}
+        });
+      }
+    } else {
+      gsap.set(panel, {opacity:1, x:0});
+      gsap.set(steps, {opacity:1, x:0});
+      if(fill) gsap.set(fill, {scaleY:1});
+    }
+  });
+})();
+
+/* Magnetic buttons */
+document.querySelectorAll('.magnetic').forEach(btn=>{
+  btn.addEventListener('mousemove', (e)=>{
+    const r = btn.getBoundingClientRect();
+    const x = e.clientX - r.left - r.width/2;
+    const y = e.clientY - r.top - r.height/2;
+    gsap.to(btn, {x:x*0.35, y:y*0.35, duration:0.3, ease:'power2.out'});
+  });
+  btn.addEventListener('mouseleave', ()=>{
+    gsap.to(btn, {x:0, y:0, duration:0.5, ease:'elastic.out(1,0.4)'});
+  });
+});
+
+/* HERO 3D node field */
+(function(){
+  const canvas = document.getElementById('hero-canvas');
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(55, canvas.clientWidth/canvas.clientHeight, 0.1, 1000);
+  camera.position.set(0,0,26);
+  const renderer = new THREE.WebGLRenderer({canvas, alpha:true, antialias:true});
+  function size(){ const w=canvas.clientWidth,h=canvas.clientHeight; renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); }
+  size();
+
+  const colorNavy = new THREE.Color(0x9A8FC7);
+  const colorTerra = new THREE.Color(0xE8B93D);
+  const colorCoral = new THREE.Color(0xFF4F5E);
+  const COUNT = 46;
+  const nodes = [];
+  const group = new THREE.Group();
+  scene.add(group);
+
+  for(let i=0;i<COUNT;i++){
+    const isBrand = Math.random() > 0.6;
+    const geo = isBrand ? new THREE.BoxGeometry(0.28,0.28,0.28) : new THREE.SphereGeometry(0.16, 12, 12);
+    const nodeColor = isBrand ? colorNavy : (Math.random() > 0.5 ? colorTerra : colorCoral);
+    const mat = new THREE.MeshBasicMaterial({ color: nodeColor, transparent:true, opacity:0.85 });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set((Math.random()-0.5)*34, (Math.random()-0.5)*20, (Math.random()-0.5)*14);
+    mesh.userData = { baseY: mesh.position.y, phase: Math.random()*Math.PI*2 };
+    group.add(mesh); nodes.push(mesh);
+  }
+
+  const lineMat = new THREE.LineBasicMaterial({ color: 0xE8B93D, transparent:true, opacity:0.18 });
+  const linePositions = [];
+  for(let i=0;i<nodes.length;i++){
+    for(let j=i+1;j<nodes.length;j++){
+      if(nodes[i].position.distanceTo(nodes[j].position) < 7 && Math.random() > 0.55){
+        linePositions.push(nodes[i].position.x, nodes[i].position.y, nodes[i].position.z);
+        linePositions.push(nodes[j].position.x, nodes[j].position.y, nodes[j].position.z);
+      }
+    }
+  }
+  const lineGeo = new THREE.BufferGeometry();
+  lineGeo.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
+  group.add(new THREE.LineSegments(lineGeo, lineMat));
+
+  let mouseX=0, mouseY=0;
+  window.addEventListener('mousemove', (e)=>{ mouseX=(e.clientX/window.innerWidth)*2-1; mouseY=(e.clientY/window.innerHeight)*2-1; });
+  const clock = new THREE.Clock();
+  function animate(){
+    requestAnimationFrame(animate);
+    const t = clock.getElapsedTime();
+    nodes.forEach(n=>{ n.position.y = n.userData.baseY + Math.sin(t*0.6 + n.userData.phase)*0.4; });
+    group.rotation.y += 0.0009;
+    group.rotation.y += (mouseX*0.15 - group.rotation.y)*0.01;
+    group.rotation.x += (mouseY*0.08 - group.rotation.x)*0.01;
+    renderer.render(scene, camera);
+  }
+  animate();
+  window.addEventListener('resize', size);
+})();
+
+/* NETWORK city-grid map */
+(function(){
+  const canvas = document.getElementById('network-canvas');
+  const wrap = canvas.parentElement;
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(50, wrap.clientWidth/wrap.clientHeight, 0.1, 1000);
+  camera.position.set(0, 9, 15); camera.lookAt(0,0,0);
+  const renderer = new THREE.WebGLRenderer({canvas, alpha:true, antialias:true});
+  function size(){ const w=wrap.clientWidth,h=wrap.clientHeight; renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); }
+  size();
+
+  const grid = new THREE.GridHelper(26, 22, 0xE8B93D, 0x2E1F52);
+  grid.material.transparent = true; grid.material.opacity = 0.3;
+  scene.add(grid);
+
+  const colorNavy = new THREE.Color(0xE8B93D);
+  const colorTerra = new THREE.Color(0xFF4F5E);
+  const GRID_HALF = 11;
+  const influencers = [], brands = [];
+  function randPos(){ return new THREE.Vector3((Math.random()-0.5)*GRID_HALF*1.7, 0.05, (Math.random()-0.5)*GRID_HALF*1.7); }
+
+  for(let i=0;i<10;i++){
+    const m = new THREE.Mesh(new THREE.SphereGeometry(0.22,14,14), new THREE.MeshBasicMaterial({color:colorTerra}));
+    m.position.copy(randPos()); scene.add(m); influencers.push(m);
+    const glow = new THREE.Mesh(new THREE.RingGeometry(0.3,0.34,24), new THREE.MeshBasicMaterial({color:colorTerra, transparent:true, opacity:0.5, side:THREE.DoubleSide}));
+    glow.rotation.x = -Math.PI/2; glow.position.copy(m.position); scene.add(glow); m.userData.glow = glow;
+  }
+  for(let i=0;i<6;i++){
+    const m = new THREE.Mesh(new THREE.BoxGeometry(0.36,0.36,0.36), new THREE.MeshBasicMaterial({color:colorNavy}));
+    m.position.copy(randPos()); m.position.y = 0.18; scene.add(m); brands.push(m);
+  }
+
+  const connectionLines = [];
+  const baseLineMat = new THREE.LineBasicMaterial({ color: 0xFAF3E4, transparent:true, opacity:0.0 });
+  brands.forEach(b=>{
+    const sorted = influencers.slice().sort((a,c)=> a.position.distanceTo(b.position) - c.position.distanceTo(b.position));
+    sorted.slice(0, 1+Math.floor(Math.random()*2)).forEach(inf=>{
+      const geo = new THREE.BufferGeometry().setFromPoints([b.position.clone(), inf.position.clone()]);
+      const mat = baseLineMat.clone();
+      const line = new THREE.Line(geo, mat);
+      scene.add(line);
+      connectionLines.push({ line, mat, phase: Math.random()*Math.PI*2 });
+    });
+  });
+
+  const clock = new THREE.Clock();
+  let mouseX = 0;
+  wrap.addEventListener('mousemove', (e)=>{ const rect=wrap.getBoundingClientRect(); mouseX=((e.clientX-rect.left)/rect.width)*2-1; });
+  function animate(){
+    requestAnimationFrame(animate);
+    const t = clock.getElapsedTime();
+    influencers.forEach((inf,i)=>{ const s=1+Math.sin(t*1.4+i)*0.15; inf.userData.glow.scale.set(s,s,s); });
+    connectionLines.forEach(c=>{ c.mat.opacity = 0.15 + (Math.sin(t*1.2+c.phase)*0.5+0.5)*0.35; });
+    camera.position.x = Math.sin(t*0.08)*3 + mouseX*1.5;
+    camera.lookAt(0,0,0);
+    renderer.render(scene, camera);
+  }
+  animate();
+  window.addEventListener('resize', size);
+})();
+
+</script>
+
+</body>
+</html>

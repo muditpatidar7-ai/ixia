@@ -25,11 +25,6 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     return NextResponse.json({ errors: { form: "Request body must be valid JSON." } }, { status: 400 });
   }
 
-  const validation = validateInfluencerPayload(payload);
-  if (!validation.ok) {
-    return NextResponse.json({ errors: validation.errors }, { status: 400 });
-  }
-
   const { id } = await context.params;
   let supabase;
 
@@ -37,6 +32,14 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     supabase = getSupabaseAdminClient();
   } catch {
     return NextResponse.json({ errors: { form: "Supabase server environment variables are not configured." } }, { status: 500 });
+  }
+  if (payload && typeof payload === "object" && "is_admin_verified" in payload) {
+    const { data, error } = await supabase.from("influencers").update({ is_admin_verified: Boolean((payload as { is_admin_verified?: unknown }).is_admin_verified) }).eq("id", id).select("*").single();
+    return error ? NextResponse.json({ error: "Could not update verification status." }, { status: 500 }) : NextResponse.json({ influencer: data });
+  }
+  const validation = validateInfluencerPayload(payload);
+  if (!validation.ok) {
+    return NextResponse.json({ errors: validation.errors }, { status: 400 });
   }
   const { data, error } = await supabase
     .from("influencers")

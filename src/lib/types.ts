@@ -15,6 +15,8 @@ export type EngagementRateScale = "normal" | "thousand" | "million";
 export type InfluencerFormValues = {
   fullName: string;
   email: string;
+  password: string;
+  confirmPassword: string;
   phone: string;
   city: string;
   state: string;
@@ -41,6 +43,7 @@ export type InfluencerFormValues = {
 export type InfluencerInput = {
   fullName: string;
   email: string;
+  password: string;
   phone: string;
   city: string;
   state: string;
@@ -88,6 +91,9 @@ export type InfluencerRecord = {
   portfolio_link: string | null;
   additional_notes: string | null;
   confirmation_email_status: ConfirmationEmailStatus;
+  email_verified?: boolean;
+  is_admin_verified?: boolean;
+  last_updated_at?: string;
   confirmation_email_sent_at: string | null;
   last_contacted_at: string | null;
   created_at: string;

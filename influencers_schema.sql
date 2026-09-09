@@ -68,6 +68,14 @@ ALTER TABLE public.influencers ADD CONSTRAINT influencers_engagement_rate_check 
 );
 ALTER TABLE public.influencers ADD COLUMN IF NOT EXISTS other_niche text;
 ALTER TABLE public.influencers ADD COLUMN IF NOT EXISTS other_content_language text;
+ALTER TABLE public.influencers ADD COLUMN IF NOT EXISTS password_hash text;
+ALTER TABLE public.influencers ADD COLUMN IF NOT EXISTS email_verified boolean NOT NULL DEFAULT false;
+ALTER TABLE public.influencers ADD COLUMN IF NOT EXISTS is_admin_verified boolean NOT NULL DEFAULT false;
+ALTER TABLE public.influencers ADD COLUMN IF NOT EXISTS otp_hash text;
+ALTER TABLE public.influencers ADD COLUMN IF NOT EXISTS otp_expiry timestamptz;
+ALTER TABLE public.influencers ADD COLUMN IF NOT EXISTS last_updated_at timestamptz NOT NULL DEFAULT now();
+ALTER TABLE public.influencers ADD COLUMN IF NOT EXISTS reset_token_hash text;
+ALTER TABLE public.influencers ADD COLUMN IF NOT EXISTS reset_token_expiry timestamptz;
 
 DO $$
 BEGIN
@@ -100,6 +108,42 @@ CREATE INDEX IF NOT EXISTS idx_influencers_niches_gin ON public.influencers USIN
 CREATE INDEX IF NOT EXISTS idx_influencers_languages_gin ON public.influencers USING GIN (content_languages);
 CREATE INDEX IF NOT EXISTS idx_influencers_email ON public.influencers (email);
 CREATE INDEX IF NOT EXISTS idx_influencers_created_at ON public.influencers (created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_influencers_email_verified ON public.influencers (email_verified);
+
+CREATE TABLE IF NOT EXISTS public.campaigns (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  title text NOT NULL,
+  brand_name text NOT NULL,
+  category text NOT NULL,
+  location text NOT NULL,
+  budget text NOT NULL,
+  deadline date NOT NULL,
+  description text NOT NULL DEFAULT '',
+  created_by uuid REFERENCES auth.users(id) ON DELETE SET NULL,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS public.applications (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES public.influencers(id) ON DELETE CASCADE,
+  campaign_id uuid NOT NULL REFERENCES public.campaigns(id) ON DELETE CASCADE,
+  status text NOT NULL DEFAULT 'applied' CHECK (status IN ('applied', 'shortlisted', 'confirmed', 'completed')),
+  applied_at timestamptz NOT NULL DEFAULT now(),
+  UNIQUE (user_id, campaign_id)
+);
+
+CREATE TABLE IF NOT EXISTS public.edit_requests (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES public.influencers(id) ON DELETE CASCADE,
+  requested_changes jsonb NOT NULL,
+  status text NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
+  requested_at timestamptz NOT NULL DEFAULT now(),
+  reviewed_at timestamptz
+);
+
+CREATE INDEX IF NOT EXISTS idx_applications_user ON public.applications (user_id);
+CREATE INDEX IF NOT EXISTS idx_applications_campaign ON public.applications (campaign_id);
+CREATE INDEX IF NOT EXISTS idx_edit_requests_status ON public.edit_requests (status);
 
 -- Future bulk email support. Campaign rows can later be created from the admin dashboard,
 -- and recipients can be populated from public.influencers by email, niche, platform, or location.
@@ -156,6 +200,9 @@ EXECUTE PROCEDURE public.update_updated_at_column();
 ALTER TABLE public.influencers ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.email_campaigns ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.email_campaign_recipients ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.campaigns ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.applications ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.edit_requests ENABLE ROW LEVEL SECURITY;
 
 -- The Next.js API uses SUPABASE_SERVICE_ROLE_KEY for inserts and admin operations.
 -- Keep public table policies closed unless you intentionally expose direct client access.

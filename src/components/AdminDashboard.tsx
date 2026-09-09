@@ -13,6 +13,7 @@ import {
 import { getSupabaseBrowserClient } from "@/lib/supabaseClient";
 import type { EngagementRateScale, FieldErrors, InfluencerFormValues, InfluencerRecord } from "@/lib/types";
 import { validateInfluencerPayload } from "@/lib/validation";
+import { AdminOperationsPanel } from "./AdminOperationsPanel";
 
 const engagementRateScaleOptions: { value: EngagementRateScale; label: string }[] = [
   { value: "normal", label: "Exact value" },
@@ -26,6 +27,8 @@ type SortDirection = "asc" | "desc";
 const emptyFormValues: InfluencerFormValues = {
   fullName: "",
   email: "",
+  password: "",
+  confirmPassword: "",
   phone: "",
   city: "",
   state: "",
@@ -78,6 +81,8 @@ const recordToFormValues = (record: InfluencerRecord): InfluencerFormValues => {
   return {
     fullName: record.full_name,
     email: record.email,
+    password: "",
+    confirmPassword: "",
     phone: record.phone,
     city: record.city,
     state: record.state,
@@ -107,8 +112,9 @@ const toSubmissionPayload = (values: InfluencerFormValues) => {
     values.engagementRateScale === "thousand" ? 1000 : values.engagementRateScale === "million" ? 1000000 : 1;
   const rawEngagementRate = values.engagementRate.trim();
 
+  const { password: _password, confirmPassword: _confirmPassword, ...profileValues } = values;
   return {
-    ...values,
+    ...profileValues,
     engagementRate:
       rawEngagementRate === "" ? "" : String(Math.round(Number(rawEngagementRate) * multiplier)),
     hasPaidCollaborations:
@@ -425,6 +431,19 @@ export function AdminDashboard() {
     setStatusMessage("Influencer updated.");
   };
 
+  const toggleVerification = async () => {
+    if (!selectedInfluencer || !accessToken) return;
+    const response = await fetch(`/api/admin/influencers/${selectedInfluencer.id}`, {
+      method: "PATCH",
+      headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ is_admin_verified: !selectedInfluencer.is_admin_verified }),
+    });
+    const result = await response.json();
+    if (!response.ok) { setStatusMessage(result.error ?? "Could not update verification status."); return; }
+    setInfluencers((current) => current.map((influencer) => influencer.id === selectedInfluencer.id ? result.influencer : influencer));
+    setStatusMessage(result.influencer.is_admin_verified ? "Influencer verified." : "Verification set to pending.");
+  };
+
   const deleteInfluencer = async () => {
     if (!selectedId || !accessToken || !selectedInfluencer) {
       return;
@@ -723,6 +742,9 @@ export function AdminDashboard() {
                   <p className="text-sm font-semibold uppercase tracking-[0.16em] text-steel-blue">Selected creator</p>
                   <h2 className="mt-2 text-2xl font-semibold text-forest-green">{selectedInfluencer.full_name}</h2>
                   <p className="mt-1 text-sm text-slate-600">{selectedInfluencer.email}</p>
+                  <button type="button" onClick={() => void toggleVerification()} className="mt-4 rounded-xl bg-forest-green px-4 py-2 text-sm font-semibold text-white">
+                    {selectedInfluencer.is_admin_verified ? "Mark Pending Verification" : "Mark Verified"}
+                  </button>
                 </div>
 
                 {editErrors.form ? (
@@ -850,6 +872,7 @@ export function AdminDashboard() {
             )}
           </aside>
         </section>
+        <AdminOperationsPanel token={accessToken} />
       </div>
     </main>
   );
