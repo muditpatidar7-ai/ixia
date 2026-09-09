@@ -9,7 +9,9 @@ export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null);
   const token = typeof body?.token === "string" ? body.token : "";
   const password = typeof body?.password === "string" ? body.password : "";
+  const confirmPassword = typeof body?.confirmPassword === "string" ? body.confirmPassword : "";
   if (!token || password.length < 8) return NextResponse.json({ error: "A valid token and password of at least 8 characters are required." }, { status: 400 });
+  if (password !== confirmPassword) return NextResponse.json({ error: "Passwords do not match." }, { status: 400 });
   const supabase = getSupabaseAdminClient();
   const { data: user } = await supabase.from("influencers").select("id,reset_token_expiry").eq("reset_token_hash", createHash("sha256").update(token).digest("hex")).single();
   if (!user || !user.reset_token_expiry || new Date(user.reset_token_expiry) < new Date()) return NextResponse.json({ error: "That reset link is invalid or expired." }, { status: 400 });
