@@ -19,7 +19,11 @@ export async function POST(request: NextRequest) {
   if (!(await verifyPassword(password, user.password_hash))) return NextResponse.json({ error: "Invalid email or password." }, { status: 401 });
   if (!user.email_verified) return NextResponse.json({ error: "Please verify your email before logging in.", requiresVerification: true }, { status: 403 });
 
-  const response = NextResponse.json({ message: "Logged in." });
-  setInfluencerSession(response, signInfluencerToken({ sub: user.id, email: user.email }));
-  return response;
+  try {
+    const response = NextResponse.json({ message: "Logged in." });
+    setInfluencerSession(response, signInfluencerToken({ sub: user.id, email: user.email }));
+    return response;
+  } catch {
+    return NextResponse.json({ error: "Login session could not be created. Add JWT_SECRET to the server environment and restart the app." }, { status: 500 });
+  }
 }

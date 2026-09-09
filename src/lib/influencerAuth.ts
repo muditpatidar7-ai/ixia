@@ -11,7 +11,7 @@ const TOKEN_AGE = 60 * 60 * 24 * 7;
 type SessionPayload = { sub: string; email: string; role: "influencer" };
 
 const getSecret = () => {
-  const secret = process.env.JWT_SECRET ?? (process.env.NODE_ENV === "development" ? process.env.SUPABASE_SERVICE_ROLE_KEY : undefined);
+  const secret = process.env.JWT_SECRET ?? process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!secret) throw new Error("JWT_SECRET is not configured.");
   return secret;
 };

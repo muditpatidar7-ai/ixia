@@ -13,7 +13,8 @@ export async function POST(request: NextRequest) {
   if (!token || password.length < 8) return NextResponse.json({ error: "A valid token and password of at least 8 characters are required." }, { status: 400 });
   if (password !== confirmPassword) return NextResponse.json({ error: "Passwords do not match." }, { status: 400 });
   const supabase = getSupabaseAdminClient();
-  const { data: user } = await supabase.from("influencers").select("id,reset_token_expiry").eq("reset_token_hash", createHash("sha256").update(token).digest("hex")).single();
+  const { data: user, error: userError } = await supabase.from("influencers").select("id,reset_token_expiry").eq("reset_token_hash", createHash("sha256").update(token).digest("hex")).single();
+  if (userError && userError.code !== "PGRST116") return NextResponse.json({ error: "Could not read the password reset session. Run the latest Supabase schema." }, { status: 500 });
   if (!user || !user.reset_token_expiry || new Date(user.reset_token_expiry) < new Date()) return NextResponse.json({ error: "That password reset session is invalid or expired. Start again with Forgot Password." }, { status: 400 });
   const { error } = await supabase.from("influencers").update({ password_hash: await hashPassword(password), email_verified: true, reset_token_hash: null, reset_token_expiry: null }).eq("id", user.id);
   if (error) return NextResponse.json({ error: "Could not reset password." }, { status: 500 });

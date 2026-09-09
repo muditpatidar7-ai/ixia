@@ -33,9 +33,7 @@ export async function POST(request: NextRequest) {
     );
   }
   const otp = String(100000 + randomInt(900000));
-  const { data, error } = await supabase
-    .from("influencers")
-    .insert({
+  const accountPayload = {
       ...toInfluencerDbPayload(validation.data),
       password_hash: await hashPassword(validation.data.password),
       email_verified: false,
@@ -43,21 +41,25 @@ export async function POST(request: NextRequest) {
       otp_hash: createHash("sha256").update(otp).digest("hex"),
       otp_expiry: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
       confirmation_email_status: "pending",
-    })
-    .select("id,email,full_name")
-    .single();
+  };
+  const { data: existing } = await supabase.from("influencers").select("id,email_verified").eq("email", validation.data.email).maybeSingle();
+  if (existing?.email_verified) {
+    return NextResponse.json({ errors: { form: "An influencer with this email is already verified. Use Forgot Password if you need to change the password." } }, { status: 409 });
+  }
+
+  const query = existing
+    ? supabase.from("influencers").update(accountPayload).eq("id", existing.id).select("id,email,full_name").single()
+    : supabase.from("influencers").insert(accountPayload).select("id,email,full_name").single();
+  const { data, error } = await query;
 
   if (error) {
-    const isDuplicateEmail = error.code === "23505";
     return NextResponse.json(
       {
         errors: {
-          form: isDuplicateEmail
-            ? "An influencer with this email is already registered."
-            : "Could not save the registration. Please try again.",
+          form: "Could not save the registration. Please try again.",
         },
       },
-      { status: isDuplicateEmail ? 409 : 500 },
+      { status: 500 },
     );
   }
 

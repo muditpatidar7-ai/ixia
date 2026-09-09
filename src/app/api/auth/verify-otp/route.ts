@@ -10,12 +10,13 @@ export const runtime = "nodejs";
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null);
   const email = typeof body?.email === "string" ? body.email.trim().toLowerCase() : "";
-  const otp = typeof body?.otp === "string" ? body.otp.trim() : "";
+  const otp = typeof body?.otp === "string" ? body.otp.replace(/\D/g, "") : "";
   const purpose = body?.purpose === "reset" ? "reset" : "login";
   if (!email || !/^\d{6}$/.test(otp)) return NextResponse.json({ error: "Enter the 6-digit verification code." }, { status: 400 });
 
   const supabase = getSupabaseAdminClient();
-  const { data: user } = await supabase.from("influencers").select("id,email,full_name,otp_hash,otp_expiry").eq("email", email).single();
+  const { data: user, error: userError } = await supabase.from("influencers").select("id,email,full_name,otp_hash,otp_expiry").eq("email", email).single();
+  if (userError && userError.code !== "PGRST116") return NextResponse.json({ error: "Could not read the influencer account. Check the latest Supabase schema." }, { status: 500 });
   if (!user || user.otp_hash !== createHash("sha256").update(otp).digest("hex") || !user.otp_expiry || new Date(user.otp_expiry) < new Date()) {
     return NextResponse.json({ error: "That code is invalid or expired." }, { status: 400 });
   }
