@@ -115,9 +115,9 @@ export default function Home() {
                 <div className="mb-5 flex items-center gap-3">
                   <div className="flex -space-x-2">
                     {[
-                      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80",
-                      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80",
-                      "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=200&q=80",
+                      "/assets/images/creator-1494790108377.webp",
+                      "/assets/images/creator-1500648767791.webp",
+                      "/assets/images/cafe-1524504388.webp",
                     ].map((src, index) => (
                       <div
                         key={src}

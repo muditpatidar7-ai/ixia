@@ -4,10 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>iXIA — Local Influencer Marketing</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preload" href="/assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/space-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
 <style>
+  @font-face{font-family:'Inter';font-style:normal;font-weight:400 700;font-display:swap;src:url('/assets/fonts/inter-latin.woff2') format('woff2');}
+  @font-face{font-family:'Space Grotesk';font-style:normal;font-weight:400 700;font-display:swap;src:url('/assets/fonts/space-grotesk-latin.woff2') format('woff2');}
   :root{
     --off-white:#FAF3E4;
     --off-white-2:#F0E1BE;
@@ -236,6 +237,18 @@
   .form-submit button{appearance:none; border:none; border-radius:999px; background:linear-gradient(135deg, var(--terracotta), var(--coral)); color:var(--navy); font-weight:700; padding:16px 28px; cursor:pointer; transition:transform .2s ease, box-shadow .2s ease; box-shadow:0 16px 30px -18px rgba(255,79,94,0.72);}
   .form-submit button:hover{transform:translateY(-1px);}
   .form-submit button:disabled{opacity:0.7; cursor:wait;}
+  .partner-modal{position:fixed; inset:0; z-index:500; display:none; align-items:center; justify-content:center; padding:24px; background:rgba(18,12,34,0.72); backdrop-filter:blur(8px);}
+  .partner-modal.is-open{display:flex;}
+  .partner-dialog{position:relative; width:min(760px,100%); max-height:min(850px,calc(100vh - 48px)); overflow-y:auto; background:var(--off-white); border:1px solid rgba(250,243,228,0.45); border-radius:26px; box-shadow:0 28px 90px rgba(8,5,15,0.45); padding:34px;}
+  .partner-dialog-header{display:flex; align-items:flex-start; justify-content:space-between; gap:24px; margin-bottom:28px;}
+  .partner-dialog-header h2{color:var(--navy); font-size:clamp(28px,4vw,42px); line-height:1.05; margin-bottom:10px;}
+  .partner-dialog-header p{color:rgba(18,12,34,0.7); font-size:14px; line-height:1.6; max-width:540px;}
+  .partner-close{appearance:none; border:1px solid rgba(18,12,34,0.14); background:transparent; color:var(--navy); width:40px; height:40px; border-radius:50%; font-size:25px; line-height:1; cursor:pointer; flex-shrink:0;}
+  .partner-close:hover{background:var(--navy); color:var(--off-white);}
+  .partner-form .form-submit{margin-top:4px;}
+  .partner-form .form-submit small{color:rgba(18,12,34,0.6); line-height:1.5; max-width:360px;}
+  body.modal-open{overflow:hidden;}
+  @media(max-width:640px){.partner-modal{padding:12px;}.partner-dialog{padding:24px 18px; border-radius:20px; max-height:calc(100vh - 24px);}.partner-dialog-header{gap:12px;}.partner-dialog-header h2{font-size:30px;}}
 
   @media (max-width:768px){ .register-form{grid-template-columns:1fr;} .field-row,.checkbox-grid {grid-template-columns:1fr;} .register-card{padding:28px 18px;} .form-submit{align-items:flex-start; flex-direction:column;} }
 
@@ -299,10 +312,10 @@
     </div>
     <div class="hero-proof" id="hero-proof">
       <div class="avatar-stack">
-        <div class="avatar-ring"><img src="https://images.unsplash.com/photo-1756982784258-0fa7595fa3a8?auto=format&fit=crop&w=160&h=160&q=80" alt="Local creator"></div>
-        <div class="avatar-ring"><img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=160&h=160&q=80" alt="Local creator"></div>
-        <div class="avatar-ring"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=160&h=160&q=80" alt="Local creator"></div>
-        <div class="avatar-ring"><img src="https://images.unsplash.com/photo-1653198020531-4a15524333e9?auto=format&fit=crop&w=160&h=160&q=80" alt="Local creator"></div>
+        <div class="avatar-ring"><img src="/assets/images/creator-1756982784258.webp" alt="Local creator" width="46" height="46" loading="eager" decoding="async"></div>
+        <div class="avatar-ring"><img src="/assets/images/creator-1500648767791.webp" alt="Local creator" width="46" height="46" loading="eager" decoding="async"></div>
+        <div class="avatar-ring"><img src="/assets/images/creator-1494790108377.webp" alt="Local creator" width="46" height="46" loading="eager" decoding="async"></div>
+        <div class="avatar-ring"><img src="/assets/images/creator-1653198020531.webp" alt="Local creator" width="46" height="46" loading="eager" decoding="async"></div>
       </div>
       <div class="hero-proof-text">Now onboarding creators in Indore<span>for local brand partnerships</span></div>
     </div>
@@ -340,23 +353,23 @@
     </div>
     <div class="industry-scroll">
       <article class="case-slide">
-        <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=900&h=1200&q=80" alt="Peepal & Bean cafe in Indore">
+        <img src="/assets/images/cafe-1554118811.webp" alt="Peepal & Bean cafe in Indore" loading="lazy" decoding="async" width="900" height="1200">
         <div class="meta">Cafe<br><strong>Peepal &amp; Bean</strong><em>Regulars trusted a local creator’s café rec before stepping in.</em></div>
       </article>
       <article class="case-slide">
-        <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&h=1200&q=80" alt="Local food creator Aditi Shah filming at a cafe">
+        <img src="/assets/images/cafe-1524504388.webp" alt="Local food creator Aditi Shah filming at a cafe" loading="lazy" decoding="async" width="900" height="1200">
         <div class="meta">Creator<br><strong>Aditi Shah</strong><em>Her audience already knew the area, so every recommendation felt personal.</em></div>
       </article>
       <article class="case-slide">
-        <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=900&h=1200&q=80" alt="Cafe content shoot in Indore">
+        <img src="/assets/images/cafe-1504674900.webp" alt="Cafe content shoot in Indore" loading="lazy" decoding="async" width="900" height="1200">
         <div class="meta">Shoot<br><strong>Morning reel</strong><em>One quick story captured the coffee, ambience, and local vibe.</em></div>
       </article>
       <article class="case-slide">
-        <img src="https://images.unsplash.com/photo-1521017432531-fbd92d768814?auto=format&fit=crop&w=900&h=1200&q=80" alt="Indore cafe footfall and walk-ins after creator content">
+        <img src="/assets/images/cafe-1521017432.webp" alt="Indore cafe footfall and walk-ins after creator content" loading="lazy" decoding="async" width="900" height="1200">
         <div class="meta">Result<br><strong>Walk-ins +64%</strong><em>Local influencer promotion turned attention into footfall and repeat visits.</em></div>
       </article>
       <article class="case-slide quote">
-        <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&h=1200&q=80" alt="Cafe customer testimonial">
+        <img src="/assets/images/cafe-1495474472.webp" alt="Cafe customer testimonial" loading="lazy" decoding="async" width="900" height="1200">
         <div class="meta">Quote<br><strong>“People came for the reel, stayed for the coffee.”</strong></div>
       </article>
     </div>
@@ -369,23 +382,23 @@
     </div>
     <div class="industry-scroll">
       <article class="case-slide">
-        <img src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=900&h=1200&q=80" alt="Aavya Atelier store in India">
+        <img src="/assets/images/fashion-1529139574.webp" alt="Aavya Atelier store in India" loading="lazy" decoding="async" width="900" height="1200">
         <div class="meta">Store<br><strong>Aavya Atelier</strong><em>Local styling content made the collection feel closer and more relevant.</em></div>
       </article>
       <article class="case-slide">
-        <img src="https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=900&h=1200&q=80" alt="Local style creator Rhea Mehta filming a clothing brand">
+        <img src="/assets/images/fashion-1487412720.webp" alt="Local style creator Rhea Mehta filming a clothing brand" loading="lazy" decoding="async" width="900" height="1200">
         <div class="meta">Creator<br><strong>Rhea Mehta</strong><em>Her audience saw the outfit in context, not just in a static ad.</em></div>
       </article>
       <article class="case-slide">
-        <img src="https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=900&h=1200&q=80" alt="Fashion shoot for clothing store in India">
+        <img src="/assets/images/fashion-1521572267.webp" alt="Fashion shoot for clothing store in India" loading="lazy" decoding="async" width="900" height="1200">
         <div class="meta">Shoot<br><strong>Try-on stories</strong><em>Short styling reels made the store feel more discoverable and personal.</em></div>
       </article>
       <article class="case-slide">
-        <img src="https://images.pexels.com/photos/9822733/pexels-photo-9822733.jpeg" alt="Results from clothing store creator campaign">
+        <img src="/assets/images/fashion-9822733.webp" alt="Results from clothing store creator campaign" loading="lazy" decoding="async">
         <div class="meta">Result<br><strong>Orders doubled</strong><em>Promoting with a local creator turned style interest into quick conversions.</em></div>
       </article>
       <article class="case-slide quote">
-        <img src="https://images.pexels.com/photos/17637243/pexels-photo-17637243.jpeg" alt="Customer quote for clothing store">
+        <img src="/assets/images/fashion-17637243.webp" alt="Customer quote for clothing store" loading="lazy" decoding="async">
         <div class="meta">Quote<br><strong>“The drop sold out before the weekend.”</strong></div>
       </article>
     </div>
@@ -398,23 +411,23 @@
     </div>
     <div class="industry-scroll">
       <article class="case-slide">
-        <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=900&h=1200&q=80" alt="Saffron Table restaurant in India">
+        <img src="/assets/images/restaurant-1517248135.webp" alt="Saffron Table restaurant in India" loading="lazy" decoding="async" width="900" height="1200">
         <div class="meta">Restaurant<br><strong>Saffron Table</strong><em>A trusted local food voice made the launch feel like an event, not an ad.</em></div>
       </article>
       <article class="case-slide">
-        <img src="https://images.unsplash.com/photo-1504593811423-6dd665756598?auto=format&fit=crop&w=900&h=1200&q=80" alt="Local foodie Karan Bhatia filming restaurant content">
+        <img src="/assets/images/restaurant-1504593811.webp" alt="Local foodie Karan Bhatia filming restaurant content" loading="lazy" decoding="async" width="900" height="1200">
         <div class="meta">Creator<br><strong>Karan Bhatia</strong><em>His followers saw the experience firsthand and booked before the service even opened.</em></div>
       </article>
       <article class="case-slide">
-        <img src="https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=900&h=1200&q=80" alt="Food content shoot at restaurant">
+        <img src="/assets/images/restaurant-1559339352.webp" alt="Food content shoot at restaurant" loading="lazy" decoding="async" width="900" height="1200">
         <div class="meta">Shoot<br><strong>Chef’s table reel</strong><em>One creator-led reel made the menu feel aspirational and local.</em></div>
       </article>
       <article class="case-slide">
-        <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=900&h=1200&q=80" alt="Restaurant bookings after local creator campaign">
+        <img src="/assets/images/restaurant-1414235077.webp" alt="Restaurant bookings after local creator campaign" loading="lazy" decoding="async" width="900" height="1200">
         <div class="meta">Result<br><strong>Bookings filled</strong><em>Promoting with a local foodie helped turn curiosity into reservations.</em></div>
       </article>
       <article class="case-slide quote">
-        <img src="https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=900&h=1200&q=80" alt="Restaurant quote card">
+        <img src="/assets/images/restaurant-1552566626.webp" alt="Restaurant quote card" loading="lazy" decoding="async" width="900" height="1200">
         <div class="meta">Quote<br><strong>“The table waitlist started the same night.”</strong></div>
       </article>
     </div>
@@ -427,23 +440,23 @@
     </div>
     <div class="industry-scroll">
       <article class="case-slide">
-        <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=900&h=1200&q=80" alt="Iron Pulse gym in India">
+        <img src="/assets/images/gym-1534438327.webp" alt="Iron Pulse gym in India" loading="lazy" decoding="async" width="900" height="1200">
         <div class="meta">Gym<br><strong>Iron Pulse</strong><em>Members saw a local fitness creator speaking about the space in real time.</em></div>
       </article>
       <article class="case-slide">
-        <img src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?auto=format&fit=crop&w=900&h=1200&q=80" alt="Local fitness creator Nisha Verma filming gym content">
+        <img src="/assets/images/gym-1571019614.webp" alt="Local fitness creator Nisha Verma filming gym content" loading="lazy" decoding="async" width="900" height="1200">
         <div class="meta">Creator<br><strong>Nisha Verma</strong><em>Her audience trusted her routine, so the gym felt active and relevant.</em></div>
       </article>
       <article class="case-slide">
-        <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=900&h=1200&q=80" alt="Gym workout content shoot in India">
+        <img src="/assets/images/gym-1517836357.webp" alt="Gym workout content shoot in India" loading="lazy" decoding="async" width="900" height="1200">
         <div class="meta">Shoot<br><strong>Strength reel</strong><em>One creator-led story showed the routine people wanted to join.</em></div>
       </article>
       <article class="case-slide">
-        <img src="https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?auto=format&fit=crop&w=900&h=1200&q=80" alt="Gym membership results after local creator campaign">
+        <img src="/assets/images/gym-1541534741.webp" alt="Gym membership results after local creator campaign" loading="lazy" decoding="async" width="900" height="1200">
         <div class="meta">Result<br><strong>340 new leads</strong><em>Promoting with a local fitness face helped convert attention into sign-ups.</em></div>
       </article>
       <article class="case-slide quote">
-        <img src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=900&h=1200&q=80" alt="Gym testimonial quote">
+        <img src="/assets/images/gym-1517838277.webp" alt="Gym testimonial quote" loading="lazy" decoding="async" width="900" height="1200">
         <div class="meta">Quote<br><strong>“The first week filled the 6 a.m. slots.”</strong></div>
       </article>
     </div>
@@ -461,10 +474,10 @@
 
     <div class="ixia-coverage__photo-grid">
       <figure class="ixia-coverage__photo">
-        <img src="assets/brand_photo_1.png" alt="Brand campaign photo" loading="lazy">
+        <img src="/assets/brand_photo_1.webp" alt="Brand campaign photo" loading="lazy" decoding="async" width="1920" height="1200">
       </figure>
       <figure class="ixia-coverage__photo">
-        <img src="assets/brand_photo_2.jpg" alt="Local creator campaign photo" loading="lazy">
+        <img src="/assets/brand_photo_2.webp" alt="Local creator campaign photo" loading="lazy" decoding="async" width="1920" height="1200">
       </figure>
     </div>
 
@@ -489,7 +502,97 @@
 
     <div class="ixia-coverage__cta">
       <h3>Ready to be seen across Indore?</h3>
-      <a href="/platform">Partner with iXIA</a>
+      <a href="#partner-form" class="partner-trigger">Partner with iXIA</a>
+    </div>
+  </div>
+
+  <div class="partner-modal" id="partner-modal" role="dialog" aria-modal="true" aria-labelledby="partner-dialog-title" aria-hidden="true">
+    <div class="partner-dialog">
+      <div class="partner-dialog-header">
+        <div>
+          <p class="section-eyebrow">For brands</p>
+          <h2 id="partner-dialog-title">Let&apos;s plan your next local campaign.</h2>
+          <p>Share a few details and the Ixia team will come back with creator recommendations for your city, audience, and budget.</p>
+        </div>
+        <button type="button" class="partner-close" aria-label="Close partner inquiry form">&times;</button>
+      </div>
+
+      <form class="register-form partner-form" id="partner-form">
+        <div class="form-field">
+          <label for="partner-brand">Brand name *</label>
+          <input id="partner-brand" name="brandName" type="text" autocomplete="organization" required>
+        </div>
+        <div class="form-field">
+          <label for="partner-category">Business category *</label>
+          <select id="partner-category" name="category" required>
+            <option value="">Select a category</option>
+            <option>Food &amp; beverage</option>
+            <option>Fashion &amp; beauty</option>
+            <option>Health &amp; fitness</option>
+            <option>Retail &amp; e-commerce</option>
+            <option>Hospitality &amp; travel</option>
+            <option>Education</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="partner-city">Campaign city *</label>
+          <input id="partner-city" name="city" type="text" autocomplete="address-level2" placeholder="e.g. Indore" required>
+        </div>
+        <div class="form-field">
+          <label for="partner-budget">Estimated budget *</label>
+          <select id="partner-budget" name="budget" required>
+            <option value="">Select a budget range</option>
+            <option>Under INR 25,000</option>
+            <option>INR 25,000 - 50,000</option>
+            <option>INR 50,000 - 1,00,000</option>
+            <option>INR 1,00,000 - 2,50,000</option>
+            <option>INR 2,50,000+</option>
+            <option>Still deciding</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="partner-timeline">Campaign timeline</label>
+          <input id="partner-timeline" name="timeline" type="text" placeholder="e.g. 15 July - 15 August 2026">
+        </div>
+        <div class="form-field">
+          <label for="partner-goal">Main campaign goal</label>
+          <select id="partner-goal" name="goal">
+            <option value="">Select a goal</option>
+            <option>Awareness and reach</option>
+            <option>Store visits</option>
+            <option>Leads or enquiries</option>
+            <option>Product or service launch</option>
+            <option>Sales and conversions</option>
+            <option>Content creation</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="partner-contact">Contact person *</label>
+          <input id="partner-contact" name="contactName" type="text" autocomplete="name" required>
+        </div>
+        <div class="form-field">
+          <label for="partner-email">Work email *</label>
+          <input id="partner-email" name="email" type="email" autocomplete="email" required>
+        </div>
+        <div class="form-field">
+          <label for="partner-phone">Phone / WhatsApp *</label>
+          <input id="partner-phone" name="phone" type="tel" autocomplete="tel" required>
+        </div>
+        <div class="form-field">
+          <label for="partner-website">Website or social handle</label>
+          <input id="partner-website" name="website" type="text" placeholder="https:// or @yourbrand">
+        </div>
+        <div class="form-field full">
+          <label for="partner-notes">Tell us about the campaign</label>
+          <textarea id="partner-notes" name="notes" rows="4" placeholder="Audience, products to feature, creator preferences, deliverables, or anything else we should know."></textarea>
+        </div>
+        <div class="form-submit">
+          <small>By submitting, you agree that the Ixia team may contact you about this campaign enquiry.</small>
+          <button type="submit">Send campaign enquiry</button>
+          <div class="register-status" id="partner-status" role="status" aria-live="polite"></div>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -509,6 +612,60 @@
         });
       }, { threshold: 0.3 });
       observer.observe(section);
+    })();
+
+    (function () {
+      var modal = document.getElementById('partner-modal');
+      var trigger = document.querySelector('.partner-trigger');
+      var closeButton = modal && modal.querySelector('.partner-close');
+      var form = document.getElementById('partner-form');
+      var status = document.getElementById('partner-status');
+      var lastFocusedElement;
+      if (!modal || !trigger || !closeButton || !form || !status) return;
+
+      function closeModal() {
+        modal.classList.remove('is-open');
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('modal-open');
+        if (lastFocusedElement) lastFocusedElement.focus();
+      }
+
+      trigger.addEventListener('click', function (event) {
+        event.preventDefault();
+        lastFocusedElement = document.activeElement;
+        modal.classList.add('is-open');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('modal-open');
+        document.getElementById('partner-brand').focus();
+      });
+      closeButton.addEventListener('click', closeModal);
+      modal.addEventListener('click', function (event) { if (event.target === modal) closeModal(); });
+      document.addEventListener('keydown', function (event) { if (event.key === 'Escape' && modal.classList.contains('is-open')) closeModal(); });
+
+      form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        if (!form.reportValidity()) return;
+        var values = new FormData(form);
+        var subject = encodeURIComponent('New brand campaign enquiry - ' + values.get('brandName'));
+        var body = encodeURIComponent([
+          'Brand: ' + values.get('brandName'),
+          'Category: ' + values.get('category'),
+          'City: ' + values.get('city'),
+          'Budget: ' + values.get('budget'),
+          'Timeline: ' + (values.get('timeline') || 'Not specified'),
+          'Goal: ' + (values.get('goal') || 'Not specified'),
+          'Contact: ' + values.get('contactName'),
+          'Email: ' + values.get('email'),
+          'Phone / WhatsApp: ' + values.get('phone'),
+          'Website or social: ' + (values.get('website') || 'Not specified'),
+          '',
+          'Campaign details:',
+          values.get('notes') || 'Not specified'
+        ].join('\n'));
+        status.className = 'register-status success';
+        status.textContent = 'Your email app is opening with the enquiry details.';
+        window.location.href = 'mailto:ixia98971@gmail.com?subject=' + subject + '&body=' + body;
+      });
     })();
   </script>
 </section>
