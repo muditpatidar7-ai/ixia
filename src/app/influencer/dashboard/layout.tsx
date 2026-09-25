@@ -1,4 +1,3 @@
-import { InfluencerDashboard } from "@/components/InfluencerDashboard";
 import type { Metadata } from "next";
 import { canonicalUrl } from "@/lib/seo";
 
@@ -9,8 +8,6 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export const dynamic = "force-dynamic";
-
-export default function InfluencerDashboardPage() {
-  return <InfluencerDashboard />;
+export default function InfluencerDashboardLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  return children;
 }

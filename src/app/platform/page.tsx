@@ -1,4 +1,12 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+import { canonicalUrl } from "@/lib/seo";
+
+export const metadata: Metadata = {
+  title: "Local Creator Partnerships and Brand Campaigns",
+  description: "Find authentic local creators, build better influencer partnerships, and turn content into consistent paid brand campaigns with iXIA.",
+  alternates: { canonical: canonicalUrl("/platform") },
+};
 
 const headlineOptions = [
   "Turn your following into real local partnerships",
@@ -127,7 +135,7 @@ export default function Home() {
                           padding: index === 0 ? "2px" : "0",
                         }}
                       >
-                        <img src={src} alt="Creator" className="h-full w-full rounded-full object-cover" />
+                        <img src={src} alt="Local iXIA creator profile photo" loading="eager" className="h-full w-full rounded-full object-cover" />
                       </div>
                     ))}
                   </div>
@@ -162,7 +170,7 @@ export default function Home() {
 
       <section className="bg-[#120C22] px-5 py-20 text-white sm:px-8">
         <div className="mx-auto max-w-6xl">
-          <p className="mb-6 text-xs font-semibold uppercase tracking-[0.2em] text-[#E8B93D]">Why join iXIA</p>
+          <h2 className="mb-6 text-3xl font-bold tracking-[-0.04em] text-white sm:text-4xl">Why join iXIA</h2>
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
             {benefits.map((item) => (
               <div key={item.title} className="rounded-[24px] border border-white/10 bg-white/5 p-6">
@@ -240,11 +248,11 @@ export default function Home() {
 
       <section className="bg-[#120C22] px-5 py-20 text-white sm:px-8">
         <div className="mx-auto max-w-5xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#E8B93D]">FAQ</p>
+          <h2 className="text-3xl font-bold tracking-[-0.04em] text-white sm:text-4xl">Influencer marketing questions</h2>
           <div className="mt-6 space-y-4">
             {faqs.map((item) => (
               <div key={item.question} className="rounded-[20px] border border-white/10 bg-white/5 p-5">
-                <p className="text-lg font-semibold text-white">{item.question}</p>
+                <h3 className="text-lg font-semibold text-white">{item.question}</h3>
                 <p className="mt-2 text-sm leading-7 text-white/75">{item.answer}</p>
               </div>
             ))}

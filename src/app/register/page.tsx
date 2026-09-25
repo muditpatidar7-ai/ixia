@@ -1,8 +1,11 @@
 import { RegistrationForm } from "@/components/RegistrationForm";
+import type { Metadata } from "next";
+import { canonicalUrl } from "@/lib/seo";
 
-export const metadata = {
-  title: "Register as an Influencer | Ixia",
-  description: "Apply to join Ixia as a creator or influencer.",
+export const metadata: Metadata = {
+  title: "Register as a Local Influencer with iXIA",
+  description: "Apply to join iXIA as a local creator or influencer and get matched with relevant businesses, paid partnerships, and brand campaigns.",
+  alternates: { canonical: canonicalUrl("/register") },
 };
 
 export default function RegisterPage() {

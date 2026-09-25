@@ -1,8 +1,12 @@
 import { AdminLoginForm } from "@/components/AdminLoginForm";
+import type { Metadata } from "next";
+import { canonicalUrl } from "@/lib/seo";
 
-export const metadata = {
-  title: "Admin Login | Ixia",
-  description: "Sign in to the Ixia admin dashboard.",
+export const metadata: Metadata = {
+  title: "iXIA Admin Dashboard Login and Access",
+  description: "Sign in securely to the iXIA admin dashboard to manage influencer applications, campaigns, profiles, and collaboration operations.",
+  alternates: { canonical: canonicalUrl("/admin/login") },
+  robots: { index: false, follow: false },
 };
 
 export const dynamic = "force-dynamic";
